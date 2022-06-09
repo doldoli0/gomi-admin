@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="424c3602-f951-4e65-9af5-40a1b804f9b0" name="GM">
+        <fileTransfer rootFolder="/var/www/admin.gomipayments" accessType="SFTP" host="3.38.216.207" port="22" sshConfigId="bace0aa4-a815-48b7-ba85-e7ec488f7818" sshConfig="ubuntu@3.38.216.207:22 key" keyPair="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

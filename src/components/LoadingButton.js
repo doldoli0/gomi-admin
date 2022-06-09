@@ -13,14 +13,16 @@ import LaddaButton, {
 } from "@zumper/react-ladda"
 import "ladda/dist/ladda-themeless.min.css"
 export default function LoadingButton({
-  type,
-  label,
-  variant,
-  size,
-  className,
+    actionType,
+    label,
+    variant,
+    size,
+    className,
+    onClick,
+    loading
 }) {
   let style
-  switch (type) {
+  switch (actionType) {
     case "expand-right":
       style = EXPAND_RIGHT
       break
@@ -51,19 +53,20 @@ export default function LoadingButton({
     default:
       style = EXPAND_LEFT
   }
-  const [loading, setLoading] = useState(false)
-  const onClick = () => {
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-    }, 2000)
-  }
+  // const [loading, setLoading] = useState(false)
+  // const onClick = () => {
+  //   setLoading(true)
+  //   setTimeout(() => {
+  //     setLoading(false)
+  //   }, 2000)
+  // }
 
   return (
     <LaddaButton
-      loading={loading}
-      onClick={onClick}
-      style={style}
+        loading={loading}
+        onClick={onClick}
+        style={style}
+          disabled={loading}
       className={`btn btn-${variant ? variant : "primary"} ${
         size ? "btn-" + size : ""
       } ${className ? className : ""} `}

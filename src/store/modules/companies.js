@@ -1,8 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import ApiController from "../../utils/ApiController";
+import ApiController from "../../lib/ApiController";
+import {toast} from "react-toastify";
 
 const initialState = {
     data: [],
+    check_before_fee:0,
+    check_after_fee:0,
+    status1:0,
+    status2:0,
     isLoaded: false,
     isLoading: false,
     createModal: false,
@@ -12,9 +17,8 @@ const initialState = {
         sales: '',
         before_fee: '',
         after_fee: '',
-        memo: '',
     },
-    input_errors: {
+    inputErrors: {
 
     },
 }; // 초기 상태 정의
@@ -24,7 +28,7 @@ export const requestCreateCompany = createAsyncThunk(
     async (postData, {rejectWithValue}) => {
         try {
             const response = await ApiController.post(`/company`, postData);
-            // toast.success('추가 되었습니다.');
+            toast.success('추가 되었습니다.');
             return response.data;
         }
         catch (err) {
@@ -97,40 +101,47 @@ const companiesSlice = createSlice({
             state.inputs[action.payload.name] = action.payload.value
         },
         clearInputError: (state) => {
-            state.inputs_error = initialState.input_errors;
+            state.inputs_error = initialState.inputErrors;
         },
         setCreateModal: (state, action) => {
             state.createModal = action.payload;
         },
         setRemoveModal: (state, action) => {
             state.removeModal = action.payload;
+        },
+        setIsLoaded: (state, action) => {
+            state.isLoaded = action.payload;
         }
     },
     extraReducers: builder => {
         builder.addCase(requestCreateCompany.pending, (state) =>{
             state.isLoading = true;
-            state.input_errors = initialState.input_errors;
+            state.inputErrors = initialState.inputErrors;
         });
         builder.addCase(requestCreateCompany.fulfilled, (state, { payload }) => {
             state.data.unshift(payload.company);
             state.inputs = initialState.inputs;
             state.isLoading = false;
             state.createModal = false;
-            state.input_errors = initialState.input_errors;
+            state.inputErrors = initialState.inputErrors;
         });
         builder.addCase(requestCreateCompany.rejected, (state, {payload}) => {
             state.isLoading = false;
             for (let index in payload.errors) {
-                state.input_errors[index] = payload.errors[index][0]
+                state.inputErrors[index] = payload.errors[index][0]
             }
-            // state.input_errors = action.payload.errors;
+            // state.inputErrors = action.payload.errors;
         });
 
         builder.addCase(requestGetCompanies.pending, (state) =>{
             state.isLoading = true;
         });
         builder.addCase(requestGetCompanies.fulfilled, (state, { payload }) => {
-            state.data = payload.data;
+            state.data = payload.companies.data;
+            state.check_before_fee = payload.check_before_fee;
+            state.check_after_fee = payload.check_after_fee;
+            state.status1 = payload.status1;
+            state.status2 = payload.status2;
             state.isLoading = false;
             state.isLoaded = true;
         });
@@ -145,13 +156,13 @@ const companiesSlice = createSlice({
             const index = state.data.findIndex((company) => company.id === payload.company.id);
             if (index >= 0) {
                 state.data[index] = payload.company;
-                // toast.success('수정 되었습니다.');
+                toast.success('수정 되었습니다.');
             }
             state.isLoading = false;
         });
         builder.addCase(requestUpdateCompany.rejected, (state, { payload }) => {
             for (let index in payload.errors) {
-                state.input_errors[index] = payload.errors[index][0]
+                state.inputErrors[index] = payload.errors[index][0]
             }
             state.isLoading = false;
         });
@@ -170,5 +181,5 @@ const companiesSlice = createSlice({
     }
 });
 
-export const { changeInput, clearInputError, setCreateModal, setRemoveModal } = companiesSlice.actions; // 액션 생성함수
+export const { changeInput, clearInputError, setCreateModal, setRemoveModal, setIsLoaded } = companiesSlice.actions; // 액션 생성함수
 export default companiesSlice.reducer; // 리듀서

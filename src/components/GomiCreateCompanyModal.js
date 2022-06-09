@@ -17,11 +17,11 @@ const GomiCreateCompanyModal = ({show, handleClose, onChangeInput, onSubmitAddCo
                             value={companies.inputs.name}
                             onChange={onChangeInput}
                             disabled={companies.isLoading}
-                            isInvalid={companies.input_errors.name}
+                            isInvalid={companies.inputErrors.name}
                             autoFocus
                         />
                         <Form.Control.Feedback type="invalid">
-                            {companies.input_errors.name}
+                            {companies.inputErrors.name}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="sales">
@@ -34,11 +34,29 @@ const GomiCreateCompanyModal = ({show, handleClose, onChangeInput, onSubmitAddCo
                             value={companies.inputs.sales}
                             onChange={onChangeInput}
                             disabled={companies.isLoading}
-                            isInvalid={companies.input_errors.sales}
+                            isInvalid={companies.inputErrors.sales}
                         />
                         <Form.Control.Feedback type="invalid">
-                            {companies.input_errors.sales}
+                            {companies.inputErrors.sales}
                         </Form.Control.Feedback>
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="number">
+                        <Form.Label>담당자 연락처*</Form.Label>
+                        <InputGroup>
+                            <Form.Control
+                                type="text"
+                                placeholder="010-0000-0000"
+                                name={'number'}
+                                value={companies.inputs.number}
+                                onChange={onChangeInput}
+                                disabled={companies.isLoading}
+                                isInvalid={companies.inputErrors.number}
+                            />
+                            <InputGroup.Text>%</InputGroup.Text>
+                            <Form.Control.Feedback type="invalid">
+                                {companies.inputErrors.number}
+                            </Form.Control.Feedback>
+                        </InputGroup>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="before_fee">
                         <Form.Label>이전 수수료</Form.Label>
@@ -51,11 +69,11 @@ const GomiCreateCompanyModal = ({show, handleClose, onChangeInput, onSubmitAddCo
                                 value={companies.inputs.before_fee}
                                 onChange={onChangeInput}
                                 disabled={companies.isLoading}
-                                isInvalid={companies.input_errors.before_fee}
+                                isInvalid={companies.inputErrors.before_fee}
                             />
                             <InputGroup.Text>%</InputGroup.Text>
                             <Form.Control.Feedback type="invalid">
-                                {companies.input_errors.before_fee}
+                                {companies.inputErrors.before_fee}
                             </Form.Control.Feedback>
                         </InputGroup>
                     </Form.Group>
@@ -70,21 +88,21 @@ const GomiCreateCompanyModal = ({show, handleClose, onChangeInput, onSubmitAddCo
                                 value={companies.inputs.after_fee}
                                 onChange={onChangeInput}
                                 disabled={companies.isLoading}
-                                isInvalid={companies.input_errors.after_fee}
+                                isInvalid={companies.inputErrors.after_fee}
                             />
                             <InputGroup.Text>%</InputGroup.Text>
                             <Form.Control.Feedback type="invalid">
-                                {companies.input_errors.after_fee}
+                                {companies.inputErrors.after_fee}
                             </Form.Control.Feedback>
                         </InputGroup>
                     </Form.Group>
-                    <Form.Group className="mb-3" controlId="memo">
-                        <Form.Label>메모</Form.Label>
-                        <Form.Control as="textarea" rows={10} disabled={companies.isLoading}
-                                      name={'memo'}
-                                      value={companies.inputs.memo}
-                                      onChange={onChangeInput}/>
-                    </Form.Group>
+                    {/*<Form.Group className="mb-3" controlId="memo">*/}
+                    {/*    <Form.Label>메모</Form.Label>*/}
+                    {/*    <Form.Control as="textarea" rows={10} disabled={companies.isLoading}*/}
+                    {/*                  name={'memo'}*/}
+                    {/*                  value={companies.inputs.memo}*/}
+                    {/*                  onChange={onChangeInput}/>*/}
+                    {/*</Form.Group>*/}
                 </Form>
             </Modal.Body>
             <Modal.Footer>

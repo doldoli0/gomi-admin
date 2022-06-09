@@ -4,9 +4,9 @@ import {Col, Container, Row, Card, CardGroup, InputGroup, FormControl, ListGroup
 import {useCallback, useEffect, useState} from "react";
 import {fromJS, List, Map} from "immutable";
 import dynamic from "next/dynamic";
+import {useRouter} from "next/router";
 
 const ApexCharts = dynamic( () => import('react-apexcharts'), { ssr: false } );
-
 
 export async function getStaticProps() {
     return {
@@ -20,7 +20,10 @@ export async function getStaticProps() {
     }
 }
 
-export default function Home() {
+export default function Cal() {
+    const { query } = useRouter();
+    const {before_fee, after_fee, sales} = query;
+
     const numbers = [1,3,6,12];
     const chartY = [1, 3, 6, 12, 24];
 
@@ -90,6 +93,17 @@ export default function Home() {
     }));
 
     useEffect(() => {
+        setFormData(formData.set('before_fee', before_fee?before_fee:'').set('after_fee', after_fee?after_fee:'').set('sales', sales?sales:''))
+        // before_fee && setFormData(formData.set('before_fee', before_fee));
+        // after_fee && setFormData(formData.set('after_fee', after_fee));
+        // sales && setFormData(formData.set('sales', sales));
+        // setFormData(formData.set('before_fee', before_fee).set('after_fee', after_fee).set('sales', sales));
+        // if (before_fee && after_fee && sales) {
+        //     onSubmitForm();
+        // }
+    }, [query])
+
+    useEffect(() => {
         if (formData.get('sales') > 0 && formData.get('before_fee') > 0 && formData.get('after_fee') > 0) {
             setSubmitEnable(false);
         }
@@ -103,6 +117,12 @@ export default function Home() {
     }
 
     const onSubmitForm = () => {
+        // const data = {
+        //     sales : sales?sales:formData.get('sales'),
+        //     before_fee : before_fee?before_fee:formData.get('before_fee'),
+        //     after_fee : after_fee?after_fee:formData.get('after_fee')
+        // }
+
         if (formData.get('sales') > 0 && formData.get('before_fee') > 0 && formData.get('after_fee') > 0) {
             const monthly_sales = formData.get('sales') * 100000000 / 12;
             const before_monthly_fee = monthly_sales * formData.get('before_fee') / 100;

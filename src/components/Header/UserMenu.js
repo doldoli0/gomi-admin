@@ -4,8 +4,17 @@ import { Dropdown, NavItem, NavLink } from "react-bootstrap"
 
 import Link from "next/link"
 import Avatar from "../Avatar"
+import {signIn, signOut} from "next-auth/react";
+import {useDispatch} from "react-redux";
+import {requestLogout} from "../../store/modules/user";
 
 export default function UserMenu() {
+    const dispatch = useDispatch();
+    const onClickLogout = async () => {
+        dispatch(requestLogout());
+    }
+
+
   return (
     <Dropdown as={NavItem} className="ms-auto" align="end">
       <Dropdown.Toggle as={NavLink} className="pe-0" id="userInfo">
@@ -22,11 +31,9 @@ export default function UserMenu() {
         </Dropdown.Header>
         <Dropdown.Divider />
         <Dropdown.Item href="#">Settings</Dropdown.Item>
-        <Dropdown.Item href="#">Activity log </Dropdown.Item>
+        <Dropdown.Item onClick={() => signIn()}>Activity log </Dropdown.Item>
         <Dropdown.Divider />
-        <Link href="/login" passHref>
-          <Dropdown.Item>Logout</Dropdown.Item>
-        </Link>
+      <Dropdown.Item onClick={() => signOut({callbackUrl:'/login'})}>Logout</Dropdown.Item>
       </Dropdown.Menu>
     </Dropdown>
   )

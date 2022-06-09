@@ -1,13 +1,10 @@
 import { Container, Row, Col, Card, Badge } from "react-bootstrap"
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
     faServer,
-    faDollyFlatbed,
-    faReceipt,
-    faClipboardCheck,
-    faDollarSign,
-    faUserFriends,
-    faClipboard
+    faCheck,
+    faExclamation,
+    faQuestion,
+    faMoneyBill
 } from "@fortawesome/free-solid-svg-icons"
 import Pill from "../components/Pill"
 import GomiCompanies from "../components/GomiCompanies";
@@ -17,27 +14,46 @@ import {
     changeInput,
     requestCreateCompany,
     requestGetCompanies,
-    setAddModal,
-    setCreateModal
+    setCreateModal, setIsLoaded
 } from "../store/modules/companies";
 import GomiCreateCompanyModal from "../components/GomiCreateCompanyModal";
-import {Map} from "immutable";
+import {getSession, useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {useAuth} from "../hooks/useAuth";
 
 export async function getStaticProps() {
     return {
         props: {
-            title: "회사 목록",
+            title: "회사 목록"
         },
     }
 }
-export default function Index() {
+
+export default function home() {
     const dispatch = useDispatch();
     const companies = useSelector(({ companies }) => companies);
-    const [editIndex, setEditIndex] = useState(null);
-    const [editInputs, setEditInputs] = useState(Map({}));
+
+    const auth = useAuth({user:'admin',redirect:'/login'});
+    console.log(auth)
+    if (auth) {
+        return <div>loading...'</div>
+    }
+
+
+
+
+    // const router = useRouter();
+
+    // const { status } = useSession({
+    //     required: true,
+    //     onUnauthenticated() {
+    //         router.push('/login');
+    //     },
+    // })
+
 
     useEffect(() => {
-        dispatch(requestGetCompanies());
+        handleReloadCompanies();
     }, [])
 
     const handleCreateModalClose = () => {
@@ -47,7 +63,6 @@ export default function Index() {
     }
     const handleCreateModalShow = () => {
         dispatch(setCreateModal(true));
-        setEditIndex(null);
     }
     const onChangeInput = (e) => {
         dispatch(changeInput({name:e.target.name, value:e.target.value}))
@@ -55,28 +70,32 @@ export default function Index() {
     const onSubmitCreateCompany = () => {
         dispatch(requestCreateCompany(companies.inputs));
     }
+    const handleReloadCompanies = () => {
+        dispatch(setIsLoaded(false))
+        dispatch(requestGetCompanies());
+    }
 
 
     const topData = [
         {
-            "name": "대기중",
-            "content": 10,
-            "type": "data"
-        },
-        {
             "name": "기존 수수료 미확인",
-            "content": 30,
-            "type": "open-cases"
+            "content": companies.check_before_fee,
+            "type": "before_fee"
         },
         {
             "name": "확정 수수료 미확인",
-            "content": 400,
-            "type": "work-orders"
+            "content": companies.check_after_fee,
+            "type": "after_fee"
+        },
+        {
+            "name": "계약대기",
+            "content": companies.status1,
+            "type": "wait"
         },
         {
             "name": "계약 완료",
-            "content": 123,
-            "type": "new-invoices"
+            "content": companies.status2,
+            "type": "close"
         }
     ]
 
@@ -89,17 +108,21 @@ export default function Index() {
                         let color
                         let icon
                         switch (item.type) {
-                            case "open-cases":
-                                color = "green"
-                                icon = faClipboard
+                            case "before_fee":
+                                color = "gray"
+                                icon = faExclamation
                                 break
-                            case "work-orders":
-                                color = "blue"
-                                icon = faDollyFlatbed
-                                break
-                            case "new-invoices":
+                            case "after_fee":
                                 color = "red"
-                                icon = faReceipt
+                                icon = faQuestion
+                                break
+                            case "wait":
+                                color = "green"
+                                icon = faCheck
+                                break
+                            case "close":
+                                color = "blue"
+                                icon = faMoneyBill
                                 break
                             default:
                                 color = "indigo"
@@ -116,7 +139,7 @@ export default function Index() {
                 <Row>
                     <Col lg={12} className="mb-4">
                         {/* Projects widget */}
-                        <GomiCompanies data={companies.data} lightHeader handleCreateModalShow={handleCreateModalShow}/>
+                        <GomiCompanies data={companies.data} isLoaded={companies.isLoaded} isLoading={companies.isLoading} lightHeader handleCreateModalShow={handleCreateModalShow} handleReload={handleReloadCompanies} />
                     </Col>
                 </Row>
             </section>

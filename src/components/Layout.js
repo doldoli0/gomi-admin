@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, {useEffect, useState} from "react"
 import Head from "next/head"
 import NextNprogress from "nextjs-progressbar"
 import Header from "./Header"
@@ -6,7 +6,8 @@ import SvgIcons from "./SvgIcons"
 import Sidebar from "./Sidebar"
 import Footer from "./Footer"
 const Layout = (pageProps) => {
-  const [sidebarShrink, setSidebarShrink] = useState(false)
+  const [sidebarShrink, setSidebarShrink] = useState(false);
+
   return (
     <div className={pageProps.className}>
       <Head>
