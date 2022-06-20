@@ -4,21 +4,23 @@ const GomiCreateCompanyModal = ({show, handleClose, onChangeInput, onSubmitAddCo
     return (
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
-                <Modal.Title>신규 회사 추가</Modal.Title>
+                <Modal.Title>신규 가맹점 추가</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form>
                     <Form.Group className="mb-3" controlId="company">
-                        <Form.Label>회사명*</Form.Label>
+                        <Form.Label>가맹점*</Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="회사명"
+                            placeholder="가맹점"
                             name={'name'}
                             value={companies.inputs.name}
                             onChange={onChangeInput}
                             disabled={companies.isLoading}
                             isInvalid={companies.inputErrors.name}
+                            autoComplete="off"
                             autoFocus
+                            required
                         />
                         <Form.Control.Feedback type="invalid">
                             {companies.inputErrors.name}
@@ -35,24 +37,27 @@ const GomiCreateCompanyModal = ({show, handleClose, onChangeInput, onSubmitAddCo
                             onChange={onChangeInput}
                             disabled={companies.isLoading}
                             isInvalid={companies.inputErrors.sales}
+                            autoComplete="off"
+                            required
                         />
                         <Form.Control.Feedback type="invalid">
                             {companies.inputErrors.sales}
                         </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="number">
-                        <Form.Label>담당자 연락처*</Form.Label>
+                        <Form.Label>담당자 연락처 *</Form.Label>
                         <InputGroup>
                             <Form.Control
                                 type="text"
-                                placeholder="010-0000-0000"
+                                placeholder="01000000000"
                                 name={'number'}
                                 value={companies.inputs.number}
                                 onChange={onChangeInput}
                                 disabled={companies.isLoading}
                                 isInvalid={companies.inputErrors.number}
+                                autoComplete="off"
+                                required
                             />
-                            <InputGroup.Text>%</InputGroup.Text>
                             <Form.Control.Feedback type="invalid">
                                 {companies.inputErrors.number}
                             </Form.Control.Feedback>
@@ -63,13 +68,14 @@ const GomiCreateCompanyModal = ({show, handleClose, onChangeInput, onSubmitAddCo
                         <InputGroup>
                             <Form.Control
                                 type="number"
-                                step={0.01}
+                                step={0.001}
                                 placeholder="3.0"
                                 name={'before_fee'}
                                 value={companies.inputs.before_fee}
                                 onChange={onChangeInput}
                                 disabled={companies.isLoading}
                                 isInvalid={companies.inputErrors.before_fee}
+                                autoComplete="off"
                             />
                             <InputGroup.Text>%</InputGroup.Text>
                             <Form.Control.Feedback type="invalid">
@@ -82,13 +88,14 @@ const GomiCreateCompanyModal = ({show, handleClose, onChangeInput, onSubmitAddCo
                         <InputGroup>
                             <Form.Control
                                 type="number"
-                                step={0.01}
+                                step={0.001}
                                 placeholder="3.0"
                                 name={'after_fee'}
                                 value={companies.inputs.after_fee}
                                 onChange={onChangeInput}
                                 disabled={companies.isLoading}
                                 isInvalid={companies.inputErrors.after_fee}
+                                autoComplete="off"
                             />
                             <InputGroup.Text>%</InputGroup.Text>
                             <Form.Control.Feedback type="invalid">

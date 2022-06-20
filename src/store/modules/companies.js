@@ -12,6 +12,17 @@ const initialState = {
     isLoading: false,
     createModal: false,
     removeModal: false,
+    searchForm: {
+        created_by: '',
+        status: '',
+        type:'',
+        condition:'sales',
+        condition_value:'',
+        condition_sign:'>=',
+    },
+    currentPage: 1,
+    lastPage: 1,
+    totalPage: null,
     inputs: {
         name: '',
         sales: '',
@@ -43,9 +54,9 @@ export const requestCreateCompany = createAsyncThunk(
 
 export const requestGetCompanies = createAsyncThunk(
     "companies/requestGetCompanies",
-    async (_, {rejectWithValue}) => {
+    async (data=null, {rejectWithValue}, state) => {
         try {
-            const response = await ApiController.get(`/companies`);
+            const response = await ApiController.get(`/companies`, {params:data});
             return response.data;
         } catch (err) {
             if (!err.response) {
@@ -111,6 +122,21 @@ const companiesSlice = createSlice({
         },
         setIsLoaded: (state, action) => {
             state.isLoaded = action.payload;
+        },
+        setSearchForm: (state, action) => {
+            state.searchForm[action.payload.key] = action.payload.value
+        },
+        clearSearchForm: (state, action) => {
+            state.searchForm = initialState.searchForm;
+        },
+        setCurrentPage: (state, action) => {
+            state.currentPage = action.payload
+        },
+        setItem: (state, action) => {
+            const index = state.data.findIndex(company => company.id === action.payload.id)
+            if (index >= 0) {
+                state.data[index] = action.payload;
+            }
         }
     },
     extraReducers: builder => {
@@ -133,21 +159,28 @@ const companiesSlice = createSlice({
             // state.inputErrors = action.payload.errors;
         });
 
+
         builder.addCase(requestGetCompanies.pending, (state) =>{
             state.isLoading = true;
         });
         builder.addCase(requestGetCompanies.fulfilled, (state, { payload }) => {
             state.data = payload.companies.data;
-            state.check_before_fee = payload.check_before_fee;
-            state.check_after_fee = payload.check_after_fee;
-            state.status1 = payload.status1;
-            state.status2 = payload.status2;
+            state.check_before_fee = payload.status.check_before_fee;
+            state.check_after_fee = payload.status.check_after_fee;
+            state.status1 = payload.status.status1;
+            state.status2 = payload.status.status2;
             state.isLoading = false;
             state.isLoaded = true;
+            state.currentPage = payload.companies.current_page;
+            state.lastPage = payload.companies.last_page;
         });
         builder.addCase(requestGetCompanies.rejected, (state, action) => {
             state.isLoading = false;
         });
+
+
+
+
 
         builder.addCase(requestUpdateCompany.pending, (state) =>{
             state.isLoading = true;
@@ -156,7 +189,6 @@ const companiesSlice = createSlice({
             const index = state.data.findIndex((company) => company.id === payload.company.id);
             if (index >= 0) {
                 state.data[index] = payload.company;
-                toast.success('수정 되었습니다.');
             }
             state.isLoading = false;
         });
@@ -181,5 +213,5 @@ const companiesSlice = createSlice({
     }
 });
 
-export const { changeInput, clearInputError, setCreateModal, setRemoveModal, setIsLoaded } = companiesSlice.actions; // 액션 생성함수
+export const { changeInput, clearInputError, setCreateModal, setRemoveModal, setIsLoaded, clearSearchForm, setSearchForm, setCurrentPage, setItem } = companiesSlice.actions; // 액션 생성함수
 export default companiesSlice.reducer; // 리듀서

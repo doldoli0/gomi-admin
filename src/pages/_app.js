@@ -12,6 +12,25 @@ import {requestUser, setIsLoaded} from "../store/modules/user";
 import {SessionProvider, useSession} from "next-auth/react";
 
 function App({Component, pageProps}) {
+    const dispatch = useDispatch();
+    const user = useSelector((state) => state.user);
+
+
+
+    useEffect(() => {
+        if (!user.isLoaded) {
+            if (sessionStorage.getItem('token')) {
+                dispatch(requestUser());
+            }
+            else {
+                dispatch(setIsLoaded(true));
+            }
+        }
+    }, [user.isLoaded])
+
+    if (!user.isLoaded) {
+        return 'loading....'
+    }
 
     return (
         <SessionProvider>

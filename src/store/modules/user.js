@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import ApiController from "../../lib/ApiController";
 import {toast} from "react-toastify";
 import {requestCreateCompany} from "./companies";
+import {isSet} from "immutable";
 
 const initialState = {
     isAuth: false,
@@ -15,10 +16,9 @@ const initialState = {
 export const requestLogout = createAsyncThunk(
     "user/requestLogout",
     async (postData, {rejectWithValue}) => {
-        // sessionStorage.removeItem('token')
-
         try {
             const response = await ApiController.post(`/logout`, postData);
+            sessionStorage.removeItem('token')
             return response.data;
         }
         catch (err) {
@@ -52,6 +52,7 @@ export const requestUser = createAsyncThunk(
     "user/requestUser",
     async (_, {rejectWithValue}) => {
         try {
+            console.log('requestUser');
             const response = await ApiController.get(`/user`);
             return response.data;
         }
@@ -87,29 +88,34 @@ const userSlice = createSlice({
         });
         builder.addCase(requestLogin.fulfilled, (state, { payload }) => {
             //로그인 성공
-            // sessionStorage.setItem('token', payload.token);
-            state.user = payload.user;
+            sessionStorage.setItem('token', payload.token);
+            state.data = payload.user;
             state.isAuth = true;
             state.isLoading = false;
         });
         builder.addCase(requestLogin.rejected, (state, {payload}) => {
-            for (let index in payload.errors) {
-                state.inputErrors[index] = payload.errors[index][0]
-            }
+            try {
+                for (let index in payload.errors) {
+                    state.inputErrors[index] = payload.errors[index][0]
+                }
+            }catch (e){}
+
             state.isAuth = false;
             state.isLoading = false;
-            // sessionStorage.removeItem('token');
+            sessionStorage.removeItem('token');
         });
+
 
         builder.addCase(requestUser.pending, (state) =>{});
         builder.addCase(requestUser.fulfilled, (state, { payload }) => {
-            state.user = payload.user;
+            // sessionStorage.setItem('token', payload.token);
+            state.data = payload.user;
             state.isAuth = true;
             state.isLoading = false;
             state.isLoaded = true;
         });
         builder.addCase(requestUser.rejected, (state, {payload}) => {
-            // sessionStorage.removeItem('token');
+            sessionStorage.removeItem('token');
             state.isAuth = false;
             state.isLoading = false;
             state.isLoaded = true;
@@ -119,7 +125,7 @@ const userSlice = createSlice({
 
 
         builder.addCase(requestLogout.pending, (state) =>{
-            state.user = initialState.user;
+            state.data = initialState.data;
             state.isAuth = false;
             state.isLoading = false;
         });

@@ -1,151 +1,180 @@
-import { Container, Row, Col, Card, Badge } from "react-bootstrap"
-import {
-    faServer,
-    faCheck,
-    faExclamation,
-    faQuestion,
-    faMoneyBill
-} from "@fortawesome/free-solid-svg-icons"
-import Pill from "../components/Pill"
-import GomiCompanies from "../components/GomiCompanies";
-import {useEffect, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {
-    changeInput,
-    requestCreateCompany,
-    requestGetCompanies,
-    setCreateModal, setIsLoaded
-} from "../store/modules/companies";
-import GomiCreateCompanyModal from "../components/GomiCreateCompanyModal";
-import {getSession, useSession} from "next-auth/react";
-import {useRouter} from "next/router";
+import Calendar from "../components/Calendar"
+import moment from "moment"
 import {useAuth} from "../hooks/useAuth";
+import {Card, Col, Container, Row} from "react-bootstrap";
+import {useEffect, useState} from "react";
+import apiController from "../lib/ApiController";
+import {fromJS, List} from "immutable";
+import {datetimeToLocalDatetime} from "../lib/helper";
+import Preloader from "../components/Preloader";
+
 
 export async function getStaticProps() {
     return {
         props: {
-            title: "회사 목록"
+            title: "대시 보드"
         },
     }
 }
 
-export default function home() {
-    const dispatch = useDispatch();
-    const companies = useSelector(({ companies }) => companies);
 
-    const auth = useAuth({user:'admin',redirect:'/login'});
-    console.log(auth)
-    if (auth) {
-        return <div>loading...'</div>
-    }
+export default function dashboard(props) {
+    useAuth({auth:'admin', redirect:'/login'});
 
-
-
-
-    // const router = useRouter();
-
-    // const { status } = useSession({
-    //     required: true,
-    //     onUnauthenticated() {
-    //         router.push('/login');
-    //     },
-    // })
-
+    const [isLoading, setIsLoading] = useState(false);
+    const [schedules, setSchedules] = useState(List());
 
     useEffect(() => {
-        handleReloadCompanies();
+        setIsLoading(true);
+        apiController.get(`${process.env.NEXT_PUBLIC_END_POINT}/api/schedule`)
+            .then((response) => {
+                let items = [];
+                response.data.company.map((item) => {
+                    items.push({
+                        calendarId: "0",
+                        title: `${item.name} - ${item.schedule_comment}`,
+                        category: "time",
+                        start: datetimeToLocalDatetime(item.schedule),
+                        end: datetimeToLocalDatetime(item.schedule)
+                    })
+                })
+
+                setSchedules(fromJS(items))
+            })
+            .finally(() => {
+                setIsLoading(false);
+            })
     }, [])
 
-    const handleCreateModalClose = () => {
-        if (companies.isLoading)
-            return;
-        dispatch(setCreateModal(false));
-    }
-    const handleCreateModalShow = () => {
-        dispatch(setCreateModal(true));
-    }
-    const onChangeInput = (e) => {
-        dispatch(changeInput({name:e.target.name, value:e.target.value}))
-    }
-    const onSubmitCreateCompany = () => {
-        dispatch(requestCreateCompany(companies.inputs));
-    }
-    const handleReloadCompanies = () => {
-        dispatch(setIsLoaded(false))
-        dispatch(requestGetCompanies());
+
+    // const todayDate = moment().startOf("day")
+    // const YM = todayDate.format("YYYY-MM")
+    // const YESTERDAY = todayDate.clone().subtract(1, "day").format("YYYY-MM-DD")
+    // const TODAY = todayDate.format("YYYY-MM-DD")
+    // const TOMORROW = todayDate.clone().add(1, "day").format("YYYY-MM-DD")
+    const themeConfig = {
+        // month day grid cell 'day'
+        "month.weekend.backgroundColor": "#fafafa",
     }
 
-
-    const topData = [
+    const calendars = [
         {
-            "name": "기존 수수료 미확인",
-            "content": companies.check_before_fee,
-            "type": "before_fee"
+            id: "0",
+            name: "가맹점",
+            bgColor: "#4650dd",
+            borderColor: "#4650dd",
+            color: "#fff",
         },
         {
-            "name": "확정 수수료 미확인",
-            "content": companies.check_after_fee,
-            "type": "after_fee"
+            id: "1",
+            name: "프로젝트",
+            bgColor: "#00a9ff",
+            borderColor: "#00a9ff",
+            color: "#fff",
         },
         {
-            "name": "계약대기",
-            "content": companies.status1,
-            "type": "wait"
+            id: "2",
+            name: "업무",
+            bgColor: "#a9a24a",
+            borderColor: "#a9a24a",
+            color: "#fff",
         },
-        {
-            "name": "계약 완료",
-            "content": companies.status2,
-            "type": "close"
-        }
-    ]
+    ];
 
+    // const schedules = [
+    //     {
+    //         calendarId: "0",
+    //         title: "All Day Event",
+    //         category: "time",
+    //         start: YM + "-01",
+    //     },
+    //     {
+    //         calendarId: "0",
+    //         title: "Long Event",
+    //         category: "time",
+    //         start: YM + "-07",
+    //         end: YM + "-10",
+    //     },
+    //     {
+    //         calendarId: "1",
+    //         category: "time",
+    //         id: 999,
+    //         title: "Repeating Event",
+    //         start: YM + "-30T16:00:00",
+    //     },
+    //     {
+    //         calendarId: "1",
+    //         title: "Repeating Event",
+    //         category: "time",
+    //         id: 999,
+    //         start: YM + "-16T16:00:00",
+    //     },
+    //     {
+    //         calendarId: "1",
+    //         title: "Conference",
+    //         start: YESTERDAY,
+    //         end: TOMORROW,
+    //         category: "time",
+    //     },
+    //     {
+    //         calendarId: "0",
+    //         title: "Meeting",
+    //         start: TODAY + "T10:30:00",
+    //         end: TODAY + "T12:30:00",
+    //         category: "time",
+    //     }
+    // ]
 
-    return (
+    return(
         <Container fluid className="px-lg-4 px-xl-5">
             <section className="mb-3 mb-lg-5">
                 <Row>
-                    {topData.map((item, index) => {
-                        let color
-                        let icon
-                        switch (item.type) {
-                            case "before_fee":
-                                color = "gray"
-                                icon = faExclamation
-                                break
-                            case "after_fee":
-                                color = "red"
-                                icon = faQuestion
-                                break
-                            case "wait":
-                                color = "green"
-                                icon = faCheck
-                                break
-                            case "close":
-                                color = "blue"
-                                icon = faMoneyBill
-                                break
-                            default:
-                                color = "indigo"
-                                icon = faServer
+                    <Col lg={12} align={isLoading?'center':'left'}>
+                        {isLoading?
+                            <Preloader type={"wandering-cubes"} variant={'warning'} center/>
+                            :
+                            <Card className={'card-table h-100'}>
+                                <Card.Header>
+                                    <h4 className="card-heading">Calendar</h4>
+                                </Card.Header>
+                                <Calendar
+                                    height="900px"
+                                    view="month"
+                                    calendars={calendars}
+                                    disableDblClick={true}
+                                    disableClick={true}
+                                    isReadOnly={true}
+                                    month={{
+                                        startDayOfWeek: 0,
+                                    }}
+                                    schedules={schedules.toJS()}
+                                    scheduleView
+                                    taskView
+                                    theme={themeConfig}
+                                    timezones={[
+                                        {
+                                            timezoneOffset: 540,
+                                            displayLabel: "GMT+09:00",
+                                            tooltip: "Seoul",
+                                        },
+                                        // {
+                                        //     timezoneOffset: -420,
+                                        //     displayLabel: "GMT-08:00",
+                                        //     tooltip: "Los Angeles",
+                                        // },
+                                    ]}
+                                    useDetailPopup
+                                    // useCreationPopup
+                                    week={{
+                                        showTimezoneCollapseButton: true,
+                                        timezonesCollapsed: true,
+                                    }}
+                                />
+                            </Card>
                         }
-
-                        return (
-                            <Col xl={3} md={6} className="mb-4" key={index}>
-                                <Pill data={item} icon={icon} color={color} fullHeight />
-                            </Col>
-                        )
-                    })}
-                </Row>
-                <Row>
-                    <Col lg={12} className="mb-4">
-                        {/* Projects widget */}
-                        <GomiCompanies data={companies.data} isLoaded={companies.isLoaded} isLoading={companies.isLoading} lightHeader handleCreateModalShow={handleCreateModalShow} handleReload={handleReloadCompanies} />
                     </Col>
                 </Row>
             </section>
-
-
-            <GomiCreateCompanyModal companies={companies} handleClose={handleCreateModalClose} show={companies.createModal} onChangeInput={onChangeInput} onSubmitAddCompany={onSubmitCreateCompany}/>
         </Container>
     )
 }

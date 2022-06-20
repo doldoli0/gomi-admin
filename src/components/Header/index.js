@@ -1,6 +1,6 @@
 import React from "react"
 
-import { Navbar } from "react-bootstrap"
+import {Dropdown, Navbar, NavItem, NavLink} from "react-bootstrap"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faAlignLeft } from "@fortawesome/free-solid-svg-icons"
 import Link from "next/link"
@@ -8,6 +8,9 @@ import Notifications from "./Notifications"
 import Messages from "./Messages"
 import UserMenu from "./UserMenu"
 import Search from "./Search"
+import {faTwitter} from "@fortawesome/free-brands-svg-icons";
+import Icon from "../Icon";
+import GomiTools from "./GomiTools";
 
 export default function Header({ setSidebarShrink, sidebarShrink }) {
   return (
@@ -32,8 +35,9 @@ export default function Header({ setSidebarShrink, sidebarShrink }) {
           </Navbar.Brand>
         </Link>
         <div className="ms-auto d-flex align-items-center mb-0">
-          <Search />
-          <Notifications />
+          <GomiTools/>
+          {/*<Search />*/}
+          {/*<Notifications />*/}
           <Messages />
           <UserMenu />
         </div>

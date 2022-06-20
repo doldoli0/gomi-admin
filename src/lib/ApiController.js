@@ -21,11 +21,11 @@ instance.interceptors.request.use(
     function (config) {
         // 요청 바로 직전
         // axios 설정값에 대해 작성합니다.
-        // console.log(localStorage.getItem('token'))
 
-        // if (sessionStorage.getItem('token')) {
-        //     config.headers = {Authorization: `Bearer ${sessionStorage.getItem('token')}`, "Access-Control-Allow-Origin": "*", Accept: "application/json"};
-        // }
+        if (sessionStorage.getItem('token')) {
+            // config.headers = {Authorization: `Bearer ${sessionStorage.getItem('token')}`, "Access-Control-Allow-Origin": "*", Accept: "application/json"};
+            config.headers.Authorization = `Bearer ${sessionStorage.getItem('token')}`;
+        }
         return config;
     },
     function (error) {
@@ -44,10 +44,7 @@ instance.interceptors.request.use(
     2) 응답 에러 - 인자값: http error
 */
 instance.interceptors.response.use(response => response, async err => {
-    // console.log('res', err.response?.status);
     const status = err.response?.status;
-    const router = useRouter();
-
     if (status === 419) {
         // Refresh our session token
         await instance.get(url + '/sanctum/csrf-cookie')

@@ -1,0 +1,13 @@
+.circle{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    background: #2e4d93;
+    border: #7f80bb 2px solid;
+
+    font-size:16px;
+    text-align:center;  /*가로정렬*/
+    line-height:40px;  /*세로 정렬*/
+    color: white;
+}
+

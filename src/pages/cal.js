@@ -93,7 +93,7 @@ export default function Cal() {
     }));
 
     useEffect(() => {
-        setFormData(formData.set('before_fee', before_fee?before_fee:'').set('after_fee', after_fee?after_fee:'').set('sales', sales?sales:''))
+        setFormData(formData.set('before_fee', before_fee>0?before_fee:'').set('after_fee', after_fee>0?after_fee:'').set('sales', sales>0?sales:''))
         // before_fee && setFormData(formData.set('before_fee', before_fee));
         // after_fee && setFormData(formData.set('after_fee', after_fee));
         // sales && setFormData(formData.set('sales', sales));

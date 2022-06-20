@@ -3,15 +3,25 @@
     "name": "Main",
     "items": [
       {
-        "name": "회사 관리",
+        "name": "Dashboard",
         "link": "/",
-        "icon": "real-estate-1",
+        "icon": "real-estate-1"
+      },
+      {
+        "name": "가맹점 관리",
+        "link": "/companies",
+        "icon": "reading-1",
         "links": [
           {
-            "name": "회사 목록",
-            "link": "/"
+            "name": "가맹점 목록",
+            "link": "/companies"
           }
         ]
+      },
+      {
+        "name": "일정 관리",
+        "link": "/schedule",
+        "icon": "real-estate-1"
       }
     ]
   }

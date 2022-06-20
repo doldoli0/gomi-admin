@@ -25,13 +25,16 @@ export const getStaticProps = wrapper.getStaticProps((store) => () => {
 
 export default function login() {
     const [loginInputs, setLoginInputs] = useState(Map({email:'', password:'', remember:false}));
-    const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState(false);
     const dispatch = useDispatch();
     const emailRef = useRef();
     const passwordRef = useRef();
-    const { status, data } = useSession();
     const router = useRouter();
+    const user = useSelector((state)=>state.user);
+
+    if (user.isAuth && user.data.role === 'admin') {
+        router.replace('/');
+    }
 
     useEffect(() => {
         if (emailRef.current && passwordRef.current) {
@@ -55,20 +58,20 @@ export default function login() {
     const onSubmitLogin = async (e) => {
         e.preventDefault();
 
-        setIsLoading(true);
-        const response = await signIn("email-password-credential", {
-            email: loginInputs.get('email'),
-            password: loginInputs.get('password'),
-            redirect: false,
-            callbackUrl:'/'
-        });
-        setIsLoading(false);
-        setErrorMessage(response.error);
-        await router.push(response.url)
+        // setIsLoading(true);
+        // const response = await signIn("email-password-credential", {
+        //     email: loginInputs.get('email'),
+        //     password: loginInputs.get('password'),
+        //     redirect: false,
+        //     callbackUrl:'/'
+        // });
+        // setIsLoading(false);
+        // setErrorMessage(response.error);
+        // await router.push(response.url)
         // if (status === 'authenticated')
         //     router.push('/');
 
-        // dispatch(requestLogin(loginInputs.toJS()));
+        dispatch(requestLogin(loginInputs.toJS()));
     }
 
 
@@ -102,11 +105,11 @@ export default function login() {
                                     autoComplete="off"
                                     value={loginInputs.get('email')}
                                     onChange={onChangeInput}
-                                    disabled={isLoading}
-                                    isInvalid={errorMessage}
+                                    disabled={user.isLoading}
+                                    isInvalid={user.inputErrors.email}
                                 />
                                 <Form.Control.Feedback type="invalid">
-                                    {errorMessage}
+                                    {user.inputErrors.email}
                                 </Form.Control.Feedback>
                             </div>
                             <div className="mb-4">
@@ -127,7 +130,7 @@ export default function login() {
                                     value={loginInputs.get('password')}
                                     onChange={onChangeInput}
                                     required
-                                    disabled={isLoading}
+                                    disabled={user.isLoading}
                                 />
                             </div>
                             <Form.Check
@@ -136,7 +139,7 @@ export default function login() {
                                 name={'remember'}
                                 label="EMail 기억"
                                 checked={loginInputs.get('remember')}
-                                disabled={isLoading}
+                                disabled={user.isLoading}
                                 onChange={onChangeInput}
                             />
                             <div className="d-grid mb-5">
@@ -144,7 +147,7 @@ export default function login() {
                                     label="Sign in"
                                     actionType="expand-right"
                                     className="mb-1 me-1"
-                                    loading={isLoading}
+                                    loading={user.isLoading}
                                 />
                             </div>
                             {/*<p className="text-sm text-muted text-center">*/}
