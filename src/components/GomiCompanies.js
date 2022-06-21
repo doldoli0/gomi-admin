@@ -1,6 +1,8 @@
 import React from "react"
+import {Pagination, Card, Button, Table, Badge, Row, Col, Form, InputGroup, Popover} from "react-bootstrap"
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
-import {Pagination, Card, Button, Table, Badge, Row, Col, Form, InputGroup} from "react-bootstrap"
 import CardHeaderMore from "./CardHeaderMore"
 import Preloader from "./Preloader";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -140,11 +142,12 @@ export default function GomiCompanies({
                     <tr>
                         <th>가맹점</th>
                         <th>담당 사원</th>
-                        <th>다음 일정</th>
                         <th>연 매출</th>
                         <th>기존 수수료</th>
                         <th>확정 수수료</th>
                         <th>담당자 연락처</th>
+                        <th className={'text-end'}>다음 일정</th>
+                        <th className={'text-end'}>생성 일자</th>
                         <th className={'text-end'}>상태</th>
                     </tr>
                     </thead>
@@ -184,36 +187,49 @@ export default function GomiCompanies({
                                     message = '보류'
                                     bgClass = CompanyStyle.status3
                             }
+
+
+                            const memoPopover = (
+                                <Popover id="popover-basic">
+                                    {/*<Popover.Header as="h3">업체 메모</Popover.Header>*/}
+                                    <Popover.Body>
+                                        {item.memo || ''}
+                                    </Popover.Body>
+                                </Popover>
+                            );
+
+                            const schedulePopover = (
+                                <Popover id="popover-basic">
+                                    <Popover.Header as="h3">
+                                        {item.user && <strong>{item.user.name}</strong>}
+                                    </Popover.Header>
+                                    <Popover.Body>
+                                        {item.schedule_comment || ''}
+                                    </Popover.Body>
+                                </Popover>
+                            );
+
                             return (
                                 <tr key={index} className={bgClass}>
                                     <td>
                                         <div className="d-flex align-items-center">
-                                            <span className="d-inline-block">
-                                                <Link
-                                                    href={`/company/${item.id}`}
-                                                >
-                                                    <a className="text-reset text-decoration-none  d-flex align-items-center">
-                                                        <Badge bg={createdVariant}>{created}</Badge>
-                                                        <strong style={{marginLeft:'5px'}}>{item.name}</strong>
-                                                    </a>
-                                                </Link>
-                                                {/*<br/>*/}
-                                                {/*<span className="text-muted text-sm">{item.place}</span>*/}
-                                          </span>
+                                            <OverlayTrigger placement={'right'} overlay={memoPopover}>
+                                                <span className="d-inline-block">
+                                                    <Link href={`/companies/${item.id}`}>
+                                                        <a className="text-reset text-decoration-none  d-flex align-items-center">
+                                                            <Badge bg={createdVariant}>{created}</Badge>
+                                                            <strong style={{marginLeft: '5px'}}>{item.name}</strong>
+                                                        </a>
+                                                    </Link>
+                                                    {/*<br/>*/}
+                                                    {/*<span className="text-muted text-sm">{item.place}</span>*/}
+                                                </span>
+
+                                            </OverlayTrigger>
                                         </div>
                                     </td>
                                     <td>
                                         {item.user && <strong>{item.user.name}</strong>}
-                                    </td>
-                                    <td>
-                                        {item.schedule?
-                                            <>
-                                                <Moment format={'MM-DD HH:m'}>{item.schedule}</Moment>
-                                                <strong> - {item.schedule_comment}</strong>
-                                            </>
-                                            :
-                                            <span>없음</span>
-                                        }
                                     </td>
                                     <td>{item.sales.toLocaleString()}억</td>
                                     <td>{item.before_fee && `${item.before_fee.toLocaleString()}%`}</td>
@@ -227,6 +243,20 @@ export default function GomiCompanies({
                                     </td>
                                     <td>{item.number}</td>
                                     <td className={'text-end'}>
+                                        {item.schedule?
+                                            <OverlayTrigger placement={'right'} overlay={schedulePopover}>
+                                                <strong>
+                                                    <Moment format={'YYYY-MM-DD HH:mm'}>{item.schedule}</Moment>
+                                                </strong>
+                                            </OverlayTrigger>
+                                            :
+                                            <span>없음</span>
+                                        }
+                                    </td>
+                                    <td className={'text-end'}>
+                                        <Moment format={'YYYY-MM-DD HH:mm'}>{item.created_at}</Moment>
+                                    </td>
+                                    <td className={'text-end'}>
                                         <Badge bg={variant + "-light"} text={variant}>
                                             {message}
                                         </Badge>
@@ -238,7 +268,7 @@ export default function GomiCompanies({
                         :
                         <tbody>
                         <tr>
-                            <td colSpan={7} align={'center'}>
+                            <td colSpan={9} align={'center'}>
                                 {isLoading ?
                                     <Preloader type={"wandering-cubes"} variant={'warning'}/>
                                     :

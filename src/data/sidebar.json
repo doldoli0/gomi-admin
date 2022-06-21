@@ -19,9 +19,15 @@
         ]
       },
       {
-        "name": "일정 관리",
-        "link": "/schedule",
-        "icon": "real-estate-1"
+        "name": "내 정보",
+        "link": "/user",
+        "icon": "user-1",
+        "links": [
+          {
+            "name": "메세지",
+            "link": "/user/messages"
+          }
+        ]
       }
     ]
   }

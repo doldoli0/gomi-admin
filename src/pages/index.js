@@ -1,8 +1,8 @@
 import Calendar from "../components/Calendar"
 import moment from "moment"
 import {useAuth} from "../hooks/useAuth";
-import {Card, Col, Container, Row} from "react-bootstrap";
-import {useEffect, useState} from "react";
+import {Button, Card, Col, Container, Row} from "react-bootstrap";
+import {useEffect, useRef, useState} from "react";
 import apiController from "../lib/ApiController";
 import {fromJS, List} from "immutable";
 import {datetimeToLocalDatetime} from "../lib/helper";
@@ -19,6 +19,8 @@ export async function getStaticProps() {
 
 
 export default function dashboard(props) {
+    const calendarRef = useRef(null);
+
     useAuth({auth:'admin', redirect:'/login'});
 
     const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +31,7 @@ export default function dashboard(props) {
         apiController.get(`${process.env.NEXT_PUBLIC_END_POINT}/api/schedule`)
             .then((response) => {
                 let items = [];
-                response.data.company.map((item) => {
+                response.data?.company.map((item) => {
                     items.push({
                         calendarId: "0",
                         title: `${item.name} - ${item.schedule_comment}`,
@@ -125,6 +127,14 @@ export default function dashboard(props) {
     //     }
     // ]
 
+    const handleCalendar = () => {
+        console.log(calendarRef);
+        // const calendarInstance = calendarRef.current.getInstance();
+        //
+        // calendarInstance.next();
+
+    }
+
     return(
         <Container fluid className="px-lg-4 px-xl-5">
             <section className="mb-3 mb-lg-5">
@@ -137,6 +147,7 @@ export default function dashboard(props) {
                                 <Card.Header>
                                     <h4 className="card-heading">Calendar</h4>
                                 </Card.Header>
+                                <Button onClick={handleCalendar}>next</Button>
                                 <Calendar
                                     height="900px"
                                     view="month"
@@ -145,7 +156,7 @@ export default function dashboard(props) {
                                     disableClick={true}
                                     isReadOnly={true}
                                     month={{
-                                        startDayOfWeek: 0,
+                                        daynames: ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'],
                                     }}
                                     schedules={schedules.toJS()}
                                     scheduleView

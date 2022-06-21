@@ -6,13 +6,13 @@ import Moment from 'react-moment';
 
 import Avatar from "./Avatar"
 import LoadingButton from "./LoadingButton";
-export default function GomiReply({ replies, messageInput, onChangeMessage, onSubmitMessage, isLoading }) {
+export default function GomiReply({ replies, messageInput, onChangeMessage, onSubmitMessage, isLoading, messageRef }) {
   return (
     <Card className="overflow-hidden mb-1">
       <Card.Header>
           <Form onSubmit={onSubmitMessage}>
               <InputGroup>
-                  <Form.Control type="text" placeholder="Message" value={messageInput} onChange={onChangeMessage}
+                  <Form.Control ref={messageRef} type="text" placeholder="Message" value={messageInput} onChange={onChangeMessage}
                                 disabled={isLoading} required/>
                   {/*<LoadingButton*/}
                   {/*    label={<FontAwesomeIcon icon={faPaperPlane}/>}*/}
@@ -20,7 +20,7 @@ export default function GomiReply({ replies, messageInput, onChangeMessage, onSu
                   {/*    className="mb-1 me-1"*/}
                   {/*    loading={isLoading}*/}
                   {/*/>*/}
-                  <Button variant={'outline-primary'} disabled={isLoading}>
+                  <Button variant={'outline-primary'} disabled={isLoading} type={'submit'}>
                       {isLoading ?
                           <Spinner
                               as="span"
@@ -33,7 +33,6 @@ export default function GomiReply({ replies, messageInput, onChangeMessage, onSu
                           <FontAwesomeIcon icon={faPaperPlane}/>
                       }
                   </Button>
-
               </InputGroup>
           </Form>
       </Card.Header>

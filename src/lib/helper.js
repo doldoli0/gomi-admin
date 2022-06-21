@@ -1,9 +1,8 @@
+import moment from "moment";
+
 export function datetimeToLocalDatetime (datetime = null) {
-    let now;
     if (datetime)
-        now = new Date(datetime);
+        return moment(datetime).format('YYYY-MM-DD[T]HH:mm');
     else
         return null;
-
-    return now.toISOString().replace('Z', '');
 }

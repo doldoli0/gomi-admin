@@ -6,15 +6,12 @@ import Avatar from "../Avatar"
 export default function Messages() {
   const messages = [
     {
-      avatar: "/img/avatar-0.jpg",
       name: "Jason Doe",
     },
     {
-      avatar: "/img/avatar-1.jpg",
       name: "Frank Williams",
     },
     {
-      avatar: "/img/avatar-2.jpg",
       name: "Ashley Wood",
     },
   ]
@@ -41,17 +38,17 @@ export default function Messages() {
             className="d-flex align-items-center p-3"
             href="#"
           >
-            <Avatar
-              image={message.avatar}
-              alt={message.name}
-              className="me-2"
-              size="sm"
-              border
-            />
+            {/*<Avatar*/}
+            {/*  image={message.avatar}*/}
+            {/*  alt={message.name}*/}
+            {/*  className="me-2"*/}
+            {/*  size="sm"*/}
+            {/*  border*/}
+            {/*/>*/}
 
             <div className="pt-1">
               <h6 className="fw-bold mb-0">{message.name}</h6>
-              <span className="text-muted text-sm">Sent you a message</span>
+              <span className="text-muted text-sm text-secondary">Sent you a message</span>
             </div>
           </Dropdown.Item>
         ))}

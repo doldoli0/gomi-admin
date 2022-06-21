@@ -1,7 +1,7 @@
 import {Container, Row, Col, Button, Card, Form, InputGroup, Spinner, ButtonGroup} from "react-bootstrap"
 import { useRouter } from 'next/router';
 import Avatar from "../../components/Avatar";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {fromJS, Map} from "immutable";
 import apiController from "../../lib/ApiController";
 import {toast} from "react-toastify";
@@ -15,6 +15,7 @@ import Link from "next/link";
 import {useDispatch} from "react-redux";
 import {setItem} from "../../store/modules/companies";
 import {datetimeToLocalDatetime} from "../../lib/helper";
+import GomiAddressModal from "../../components/GomiAddressModal";
 
 
 
@@ -34,7 +35,9 @@ export default function CompanyDetail () {
     const [admins, setAdmins] = useState(Map({}))
     const [adminsIsLoading, setAdminsIsLoading] = useState(false);
     const [isSchedule, setIsSchedule] = useState(false);
+    const [addressModal, setAddressModalShow] = useState(false);
     const dispatch = useDispatch();
+    const messageRef = useRef(null);
 
     const router = useRouter();
     const {id} = router.query;
@@ -67,10 +70,6 @@ export default function CompanyDetail () {
     const onChangeCompany = useCallback((e) => {
         if (e.target.name === 'status') {
             setCompany(company.set(e.target.name, e.target.value * 1));
-        }
-        else if (e.target.name === 'schedule') {
-            const date = new Date(e.target.value);
-            setCompany(company.set(e.target.name, date));
         }
         else {
             setCompany(company.set(e.target.name, e.target.value));
@@ -121,21 +120,32 @@ export default function CompanyDetail () {
             })
             .finally(() => {
                 setIsLoading(false);
+                messageRef.current?.focus();
             })
     }
 
     const handleSchedule = (bool) => {
         if (bool) {
             //만들기
-            // const now = new Date().toISOString();
+            const now = new Date().toISOString();
             setIsSchedule(true);
-            setCompany(company.set('schedule', null));
+            setCompany(company.set('schedule', now));
         }
         else {
-            setCompany(company.set('schedule_comment', ''));
+            setCompany(company.set('schedule_comment', '').set('schedule', null));
             setIsSchedule(false);
         }
     }
+
+    const handleAddressModal = (bool) => {
+        setAddressModalShow(bool);
+    }
+
+    const onClickPost = (data) => {
+        setCompany(company.set('post', data.address));
+        setAddressModalShow(false);
+    }
+
 
     return (
         <Container fluid className="px-lg-4 px-xl-5">
@@ -191,12 +201,19 @@ export default function CompanyDetail () {
                                             </InputGroup>
                                         </div>
                                         <div className="mb-3">
+                                            <Form.Label>주소</Form.Label>
+                                            <InputGroup>
+                                                <InputGroup.Text>{company.get('post')}</InputGroup.Text>
+                                                <Button variant={'primary'} onClick={() => handleAddressModal(true)} disabled={isLoading}>검색</Button>
+                                            </InputGroup>
+                                            <Form.Control placeholder={'상세 주소'} className={'mt-1'} name={'post_detail'} value={company.get('post_detail') || ''} onChange={onChangeCompany} disabled={isLoading}/>
+                                        </div>
+                                        <div className="mb-3">
                                             <Form.Label>다음 일정</Form.Label>
                                             {isSchedule?
                                                 <>
                                                     <InputGroup>
-                                                        {/*안됨*/}
-                                                        <Form.Control type={'datetime-local'} value={datetimeToLocalDatetime(company.get('schedule')) || ''} name={'schedule'} onChange={onChangeCompany} disabled={isLoading || !isSchedule} required={isSchedule}/>
+                                                        <Form.Control type={'datetime-local'} value={datetimeToLocalDatetime(company.get('schedule'))} name={'schedule'} onChange={onChangeCompany} disabled={isLoading || !isSchedule} required={isSchedule}/>
                                                         <Button variant={'secondary'} onClick={() => handleSchedule(false)}>없음</Button>
                                                     </InputGroup>
                                                     <Form.Control value={company.get('schedule_comment') || ''} name={'schedule_comment'} onChange={onChangeCompany} disabled={isLoading || !isSchedule} placeholder={'다음 일정 내용'} required={isSchedule}/>
@@ -213,25 +230,25 @@ export default function CompanyDetail () {
                                             </Form.Label>
                                             {adminsIsLoading?
                                                 <Preloader type={"wandering-cubes"} variant={'warning'}/>
-                                                    :
-                                                    <Form.Control
-                                                        name="user_id"
-                                                        as={"select"}
-                                                        className="form-select"
-                                                        onChange={onChangeCompany}
-                                                        style={{fontWeight:"bold"}}
-                                                        // onBlur={handleBlur}
-                                                        // isValid={touched.country && !errors.country}
-                                                        // isInvalid={!!errors.country}
-                                                        value={company.get('user_id') || ''}
-                                                        disabled={isLoading}
-                                                    >
-                                                        <option value={''}>없음</option>
-                                                        {admins.map((admin, index) => (
-                                                            <option value={admin.get('id')} key={index}>{admin.get('name')}</option>
-                                                        ))}
-                                                    </Form.Control>
-                                                }
+                                                :
+                                                <Form.Control
+                                                    name="user_id"
+                                                    as={"select"}
+                                                    className="form-select"
+                                                    onChange={onChangeCompany}
+                                                    style={{fontWeight:"bold"}}
+                                                    // onBlur={handleBlur}
+                                                    // isValid={touched.country && !errors.country}
+                                                    // isInvalid={!!errors.country}
+                                                    value={company.get('user_id') || ''}
+                                                    disabled={isLoading}
+                                                >
+                                                    <option value={''}>없음</option>
+                                                    {admins.map((admin, index) => (
+                                                        <option value={admin.get('id')} key={index}>{admin.get('name')}</option>
+                                                    ))}
+                                                </Form.Control>
+                                            }
                                         </div>
                                         <div className={"mb-3"}>
                                             <Form.Label>진행 상태</Form.Label>
@@ -252,6 +269,12 @@ export default function CompanyDetail () {
                                                 <option value={3}>보류중</option>
                                             </Form.Control>
                                         </div>
+                                        <div className={"mb-3"}>
+                                            <Form.Label>업체 메모</Form.Label>
+                                            <InputGroup>
+                                                <Form.Control as={'textarea'} placeholder="" type="text" name={'memo'} value={company.get('memo') || ''} onChange={onChangeCompany} disabled={isLoading} rows={5}/>
+                                            </InputGroup>
+                                        </div>
                                     </Card.Body>
                                     <Card.Footer className="text-end">
                                         {/*<Button type='submit' variant="primary">저장</Button>*/}
@@ -266,7 +289,7 @@ export default function CompanyDetail () {
                             </Card>
                         </Col>
                         <Col lg={8}>
-                            <GomiReply replies={company.get('comments').toJS()} messageInput={messageInput} onChangeMessage={onChangeMessage} onSubmitMessage={onSubmitMessage} isLoading={isLoading}/>
+                            <GomiReply replies={company.get('comments').toJS()} messageInput={messageInput} onChangeMessage={onChangeMessage} onSubmitMessage={onSubmitMessage} isLoading={isLoading} messageRef={messageRef}/>
                         </Col>
                     </Row>
                     :
@@ -279,6 +302,7 @@ export default function CompanyDetail () {
                     </Row>
                 }
             </section>
+            <GomiAddressModal show={addressModal} handleModal={handleAddressModal} onClickPost={onClickPost}/>
         </Container>
     )
 }
