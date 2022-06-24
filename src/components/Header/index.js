@@ -1,18 +1,25 @@
-import React from "react"
+import React, {useEffect} from "react"
 
 import {Dropdown, Navbar, NavItem, NavLink} from "react-bootstrap"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faAlignLeft } from "@fortawesome/free-solid-svg-icons"
 import Link from "next/link"
-import Notifications from "./Notifications"
 import Messages from "./Messages"
 import UserMenu from "./UserMenu"
-import Search from "./Search"
-import {faTwitter} from "@fortawesome/free-brands-svg-icons";
-import Icon from "../Icon";
 import GomiTools from "./GomiTools";
+import {useDispatch, useSelector} from "react-redux";
+import {requestGetMessages} from "../../store/modules/messages";
+import {requestGetAdmins} from "../../store/modules/admins";
 
 export default function Header({ setSidebarShrink, sidebarShrink }) {
+  const dispatch = useDispatch();
+  const messages = useSelector((state)=>state.messages);
+
+  useEffect(() => {
+    dispatch(requestGetMessages());
+    dispatch(requestGetAdmins());
+  }, [])
+
   return (
     <header className="header">
       <Navbar
@@ -38,7 +45,7 @@ export default function Header({ setSidebarShrink, sidebarShrink }) {
           <GomiTools/>
           {/*<Search />*/}
           {/*<Notifications />*/}
-          <Messages />
+          <Messages messages={messages}/>
           <UserMenu />
         </div>
       </Navbar>

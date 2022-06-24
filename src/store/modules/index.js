@@ -3,6 +3,9 @@ import { HYDRATE } from "next-redux-wrapper";
 
 import companies from "./companies";
 import user from "./user";
+import messages from "./messages";
+import admins from "./admins"
+import schedules from "./schedules"
 
 const reducer = (state, action) => {
     if (action.type === HYDRATE) {
@@ -13,7 +16,10 @@ const reducer = (state, action) => {
     }
     return combineReducers({
         companies,
-        user
+        user,
+        messages,
+        admins,
+        schedules,
         // 여기에 추가
     })(state, action);
 }

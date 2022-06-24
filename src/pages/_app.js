@@ -9,13 +9,10 @@ import {ToastContainer} from "react-toastify";
 import {useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {requestUser, setIsLoaded} from "../store/modules/user";
-import {SessionProvider, useSession} from "next-auth/react";
 
 function App({Component, pageProps}) {
     const dispatch = useDispatch();
     const user = useSelector((state) => state.user);
-
-
 
     useEffect(() => {
         if (!user.isLoaded) {
@@ -33,25 +30,23 @@ function App({Component, pageProps}) {
     }
 
     return (
-        <SessionProvider>
-            <SSRProvider>
-                <Layout {...pageProps}>
-                    <Component {...pageProps} />
-                    <ToastContainer
-                        position="bottom-right"
-                        autoClose={5000}
-                        hideProgressBar={false}
-                        newestOnTop={false}
-                        closeOnClick
-                        rtl={false}
-                        pauseOnFocusLoss
-                        draggable
-                        pauseOnHover={false}
-                        theme={'dark'}
-                    />
-                </Layout>
-            </SSRProvider>
-        </SessionProvider>
+        <SSRProvider>
+            <Layout {...pageProps}>
+                <Component {...pageProps} />
+                <ToastContainer
+                    position="bottom-right"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover={false}
+                    theme={'dark'}
+                />
+            </Layout>
+        </SSRProvider>
     )
 }
 

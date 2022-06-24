@@ -4,9 +4,9 @@ import "tui-calendar/dist/tui-calendar.css"
 // If you use the default popups, use this.
 import "tui-date-picker/dist/tui-date-picker.css"
 import "tui-time-picker/dist/tui-time-picker.css"
-export default function index(props) {
+export default function index(props, ref) {
   const Calendar = dynamic(() => import("@toast-ui/react-calendar"), {
     ssr: false,
   })
-  return <Calendar {...props} />
+  return <Calendar {...props} forwardedRef={ref.ref}/>
 }

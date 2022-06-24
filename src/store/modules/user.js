@@ -52,7 +52,6 @@ export const requestUser = createAsyncThunk(
     "user/requestUser",
     async (_, {rejectWithValue}) => {
         try {
-            console.log('requestUser');
             const response = await ApiController.get(`/user`);
             return response.data;
         }

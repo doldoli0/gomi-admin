@@ -12,7 +12,7 @@ import Icon from "../../components/Icon";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowLeft, faChartArea, faPaperPlane} from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {setItem} from "../../store/modules/companies";
 import {datetimeToLocalDatetime} from "../../lib/helper";
 import GomiAddressModal from "../../components/GomiAddressModal";
@@ -32,9 +32,7 @@ export default function CompanyDetail () {
     const [isLoading, setIsLoading] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
     const [company, setCompany] = useState(Map({}));
-    const [admins, setAdmins] = useState(Map({}))
-    const [adminsIsLoading, setAdminsIsLoading] = useState(false);
-    const [isSchedule, setIsSchedule] = useState(false);
+    // const [isSchedule, setIsSchedule] = useState(false);
     const [addressModal, setAddressModalShow] = useState(false);
     const dispatch = useDispatch();
     const messageRef = useRef(null);
@@ -42,28 +40,21 @@ export default function CompanyDetail () {
     const router = useRouter();
     const {id} = router.query;
 
+    const admins = useSelector((state)=>state.admins);
+
     useEffect(() => {
         apiController.get(`${process.env.NEXT_PUBLIC_END_POINT}/api/company/${id}`)
             .then((response) => {
                 setCompany(fromJS(response.data));
-                if (response.data.schedule) {
-                    setIsSchedule(true);
-                }
+                // if (response.data.schedule) {
+                //     setIsSchedule(true);
+                // }
                 setIsLoaded(true);
             })
             .catch((error) => {
                 if (error.response.status === 422) {
                     router.push('/');
                 }
-            })
-
-        setAdminsIsLoading(true);
-        apiController.get(`${process.env.NEXT_PUBLIC_END_POINT}/api/admins`)
-            .then((response) => {
-                setAdmins(fromJS(response.data));
-            })
-            .finally(() => {
-                setAdminsIsLoading(false);
             })
     }, [])
 
@@ -124,18 +115,18 @@ export default function CompanyDetail () {
             })
     }
 
-    const handleSchedule = (bool) => {
-        if (bool) {
-            //만들기
-            const now = new Date().toISOString();
-            setIsSchedule(true);
-            setCompany(company.set('schedule', now));
-        }
-        else {
-            setCompany(company.set('schedule_comment', '').set('schedule', null));
-            setIsSchedule(false);
-        }
-    }
+    // const handleSchedule = (bool) => {
+    //     if (bool) {
+    //         //만들기
+    //         const now = new Date().toISOString();
+    //         setIsSchedule(true);
+    //         setCompany(company.set('schedule', now));
+    //     }
+    //     else {
+    //         setCompany(company.set('schedule_comment', '').set('schedule', null));
+    //         setIsSchedule(false);
+    //     }
+    // }
 
     const handleAddressModal = (bool) => {
         setAddressModalShow(bool);
@@ -173,65 +164,72 @@ export default function CompanyDetail () {
                                     <Card.Body>
                                         <div className="mb-3">
                                             <Form.Label>가맹점</Form.Label>
-                                            <Form.Control placeholder="" type="text" required name={'name'} value={company.get('name') || ''} onChange={onChangeCompany} disabled={isLoading}/>
+                                            <Form.Control autoComplete={'off'} placeholder="" type="text" required name={'name'} value={company.get('name') || ''} onChange={onChangeCompany} disabled={isLoading}/>
                                         </div>
                                         <div className="mb-3">
                                             <Form.Label>연 매출</Form.Label>
                                             <InputGroup>
-                                                <Form.Control placeholder="" type="number" required name={'sales'} value={company.get('sales') || ''} onChange={onChangeCompany} disabled={isLoading}/>
+                                                <Form.Control autoComplete={'off'} placeholder="" type="number" required name={'sales'} value={company.get('sales') || ''} onChange={onChangeCompany} disabled={isLoading}/>
                                                 <InputGroup.Text>억</InputGroup.Text>
                                             </InputGroup>
                                         </div>
                                         <div className="mb-3">
                                             <Form.Label>담당자 연락처</Form.Label>
-                                            <Form.Control placeholder="" type="text" required name={'number'} value={company.get('number') || ''} onChange={onChangeCompany} disabled={isLoading}/>
+                                            <Form.Control autoComplete={'off'} placeholder="" type="text" required name={'number'} value={company.get('number') || ''} onChange={onChangeCompany} disabled={isLoading}/>
                                         </div>
                                         <div className="mb-3">
                                             <Form.Label>기존 수수료</Form.Label>
                                             <InputGroup>
-                                                <Form.Control placeholder="" type="number" step={0.1} name={'before_fee'} value={company.get('before_fee') || ''} onChange={onChangeCompany} disabled={isLoading}/>
+                                                <Form.Control autoComplete={'off'} placeholder="" type="number" step={0.1} name={'before_fee'} value={company.get('before_fee') || ''} onChange={onChangeCompany} disabled={isLoading}/>
                                                 <InputGroup.Text>%</InputGroup.Text>
                                             </InputGroup>
                                         </div>
                                         <div className={"mb-3"}>
                                             <Form.Label>확정 수수료</Form.Label>
                                             <InputGroup>
-                                                <Form.Control placeholder="" type="number" step={0.1} name={'after_fee'} value={company.get('after_fee') || ''} onChange={onChangeCompany} disabled={isLoading}/>
+                                                <Form.Control autoComplete={'off'} placeholder="" type="number" step={0.1} name={'after_fee'} value={company.get('after_fee') || ''} onChange={onChangeCompany} disabled={isLoading}/>
                                                 <InputGroup.Text>%</InputGroup.Text>
                                             </InputGroup>
                                         </div>
                                         <div className="mb-3">
                                             <Form.Label>주소</Form.Label>
                                             <InputGroup>
-                                                <InputGroup.Text>{company.get('post')}</InputGroup.Text>
+                                                {company.get('post') &&
+                                                    <>
+                                                        <InputGroup.Text>{company.get('post')}</InputGroup.Text>
+                                                        <Button variant={'secondary'} onClick={() => setCompany(company.set('post', null))} disabled={isLoading}>삭제</Button>
+                                                    </>
+                                                }
                                                 <Button variant={'primary'} onClick={() => handleAddressModal(true)} disabled={isLoading}>검색</Button>
                                             </InputGroup>
-                                            <Form.Control placeholder={'상세 주소'} className={'mt-1'} name={'post_detail'} value={company.get('post_detail') || ''} onChange={onChangeCompany} disabled={isLoading}/>
-                                        </div>
-                                        <div className="mb-3">
-                                            <Form.Label>다음 일정</Form.Label>
-                                            {isSchedule?
-                                                <>
-                                                    <InputGroup>
-                                                        <Form.Control type={'datetime-local'} value={datetimeToLocalDatetime(company.get('schedule'))} name={'schedule'} onChange={onChangeCompany} disabled={isLoading || !isSchedule} required={isSchedule}/>
-                                                        <Button variant={'secondary'} onClick={() => handleSchedule(false)}>없음</Button>
-                                                    </InputGroup>
-                                                    <Form.Control value={company.get('schedule_comment') || ''} name={'schedule_comment'} onChange={onChangeCompany} disabled={isLoading || !isSchedule} placeholder={'다음 일정 내용'} required={isSchedule}/>
-                                                </>
-                                                :
-                                                <InputGroup>
-                                                    <Button variant={'primary'} onClick={() => handleSchedule(true)}>일정 만들기</Button>
-                                                </InputGroup>
+                                            {company.get('post') &&
+                                                <Form.Control placeholder={'상세 주소'} className={'mt-1'} name={'post_detail'} value={company.get('post_detail') || ''} onChange={onChangeCompany} disabled={isLoading} autoComplete={'off'}/>
                                             }
                                         </div>
+                                        {/*<div className="mb-3">*/}
+                                        {/*    <Form.Label>다음 일정</Form.Label>*/}
+                                        {/*    {isSchedule?*/}
+                                        {/*        <>*/}
+                                        {/*            <InputGroup>*/}
+                                        {/*                <Form.Control autoComplete={'off'} type={'datetime-local'} value={datetimeToLocalDatetime(company.get('schedule'))} name={'schedule'} onChange={onChangeCompany} disabled={isLoading || !isSchedule} required={isSchedule}/>*/}
+                                        {/*                <Button variant={'secondary'} onClick={() => handleSchedule(false)}>없음</Button>*/}
+                                        {/*            </InputGroup>*/}
+                                        {/*            <Form.Control className={'mt-1'} autoComplete={'off'} value={company.get('schedule_comment') || ''} name={'schedule_comment'} onChange={onChangeCompany} disabled={isLoading || !isSchedule} placeholder={'다음 일정 내용'} required={isSchedule}/>*/}
+                                        {/*        </>*/}
+                                        {/*        :*/}
+                                        {/*        <InputGroup>*/}
+                                        {/*            <Button variant={'primary'} onClick={() => handleSchedule(true)}>일정 만들기</Button>*/}
+                                        {/*        </InputGroup>*/}
+                                        {/*    }*/}
+                                        {/*</div>*/}
                                         <div className={"mb-3"}>
                                             <Form.Label>
                                                 <strong>담당 사원</strong>
                                             </Form.Label>
-                                            {adminsIsLoading?
+                                            {admins.isLoading?
                                                 <Preloader type={"wandering-cubes"} variant={'warning'}/>
                                                 :
-                                                <Form.Control
+                                                <Form.Control autoComplete={'off'}
                                                     name="user_id"
                                                     as={"select"}
                                                     className="form-select"
@@ -244,15 +242,15 @@ export default function CompanyDetail () {
                                                     disabled={isLoading}
                                                 >
                                                     <option value={''}>없음</option>
-                                                    {admins.map((admin, index) => (
-                                                        <option value={admin.get('id')} key={index}>{admin.get('name')}</option>
+                                                    {admins.data.map((admin, index) => (
+                                                        <option value={admin.id} key={index}>{admin.name}</option>
                                                     ))}
                                                 </Form.Control>
                                             }
                                         </div>
                                         <div className={"mb-3"}>
                                             <Form.Label>진행 상태</Form.Label>
-                                            <Form.Control
+                                            <Form.Control autoComplete={'off'}
                                                 name="status"
                                                 as={"select"}
                                                 className="form-select"
@@ -272,7 +270,7 @@ export default function CompanyDetail () {
                                         <div className={"mb-3"}>
                                             <Form.Label>업체 메모</Form.Label>
                                             <InputGroup>
-                                                <Form.Control as={'textarea'} placeholder="" type="text" name={'memo'} value={company.get('memo') || ''} onChange={onChangeCompany} disabled={isLoading} rows={5}/>
+                                                <Form.Control autoComplete={'off'} as={'textarea'} placeholder="" type="text" name={'memo'} value={company.get('memo') || ''} onChange={onChangeCompany} disabled={isLoading} rows={5}/>
                                             </InputGroup>
                                         </div>
                                     </Card.Body>
