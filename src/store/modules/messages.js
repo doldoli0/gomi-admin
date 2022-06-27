@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import ApiController from "../../lib/ApiController";
+import moment from "moment";
 
 const initialState = {isLoading:false, data:[]}// 초기 상태 정의
 
@@ -8,7 +9,7 @@ export const requestGetMessages = createAsyncThunk(
     "messages/requestMessages",
     async (_, {rejectWithValue}) => {
         try {
-            const response = await ApiController.get(`/user/messages`);
+            const response = await ApiController.get(`/alert/messages`);
             return response.data;
         }
         catch (err) {
@@ -26,9 +27,12 @@ const messagesSlice = createSlice({
     name: 'messages',
     initialState: initialState,
     reducers: {
-        setData: (state, action) => {
-
-        }
+        removeMessage: (state, action) => {
+            const index = state.data.findIndex(message => message.id === action.payload.id);
+            if (index >= 0) {
+                state.data.splice(index, 1);
+            }
+        },
     },
     extraReducers: builder => {
         builder.addCase(requestGetMessages.pending, (state) =>{
@@ -44,5 +48,5 @@ const messagesSlice = createSlice({
     }
 });
 
-export const { setData } = messagesSlice.actions; // 액션 생성함수
+export const { removeMessage } = messagesSlice.actions; // 액션 생성함수
 export default messagesSlice.reducer; // 리듀서

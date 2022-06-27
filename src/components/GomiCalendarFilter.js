@@ -1,6 +1,6 @@
 import {Badge, ListGroup} from "react-bootstrap";
 
-const GomiCalendarFilter = ({calendars, users, toggleFilter, userFilter, calendarFilter, onClickAllFilter}) => {
+const GomiCalendarFilter = ({calendars, users, toggleFilter, userFilter, calendarFilter, onClickAllFilter, schedules}) => {
 
     return (
         <ListGroup as="ul">
@@ -26,13 +26,15 @@ const GomiCalendarFilter = ({calendars, users, toggleFilter, userFilter, calenda
                     option.active = false;
                 }
 
+                const count = schedules.filter(schedule => schedule.calendar_id === calendar.id).length;
+
                 return (
                     <ListGroup.Item key={index} as="li" className="d-flex justify-content-between align-items-start" action onClick={() => toggleFilter('calendar', calendar.id)} active={option.active}>
                         <div className="ms-2 me-auto">
                             <div className="fw-bold">{calendar.name}</div>
                         </div>
                         <Badge bg="danger" pill>
-                            0
+                            {count}
                         </Badge>
                     </ListGroup.Item>
                 )
@@ -59,13 +61,15 @@ const GomiCalendarFilter = ({calendars, users, toggleFilter, userFilter, calenda
                     option.active = false;
                 }
 
+                const count = schedules.filter(schedule => schedule.user_id === user.id).length;
+
                 return (
                     <ListGroup.Item key={index} as="li" className="d-flex justify-content-between align-items-start" action onClick={() => toggleFilter('user', user.id)} active={option.active}>
                         <div className="ms-2 me-auto">
                             <div className="fw-bold">{user.name}</div>
                         </div>
                         <Badge bg="danger" pill>
-                            0
+                            {count}
                         </Badge>
                     </ListGroup.Item>
                 )

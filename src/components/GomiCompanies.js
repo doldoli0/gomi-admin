@@ -206,7 +206,7 @@ export default function GomiCompanies({
                             const memoPopover = (
                                 <Popover>
                                     <Popover.Header as="h3">업체 메모</Popover.Header>
-                                    <Popover.Body>
+                                    <Popover.Body style={{whiteSpace:'pre-wrap'}}>
                                         {item.memo || ''}
                                     </Popover.Body>
                                 </Popover>

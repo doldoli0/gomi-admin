@@ -5,6 +5,7 @@ import Header from "./Header"
 import SvgIcons from "./SvgIcons"
 import Sidebar from "./Sidebar"
 import Footer from "./Footer"
+import {useAuth} from "../hooks/useAuth";
 const Layout = (pageProps) => {
   const [sidebarShrink, setSidebarShrink] = useState(false);
 

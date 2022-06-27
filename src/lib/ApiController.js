@@ -54,7 +54,8 @@ instance.interceptors.response.use(response => response, async err => {
     }
     else if (status === 401) {
         // router.push('/login');
-        // window.location.href = '/login';
+        sessionStorage.removeItem('token');
+        window.location.href = '/login';
         return;
     }
     else if (status === 500) {

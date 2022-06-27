@@ -52,14 +52,15 @@ export async function getStaticProps() {
 export default function dashboard(props) {
     const calendarRef = useRef(null);
     const admins = useSelector(((state)=>state.admins));
-    const [userFilter, setUserFilter] = useState(List([]));
-    const [calendarFilter, setCalendarFilter] = useState(List([]));
+
     const [scheduleInputs, setScheduleInputs] = useState(fromJS({
-        calendar_id:0,
+        calendar_id:1,
         users:[]
     }));
+    const [userFilter, setUserFilter] = useState(List([]));
+    const [calendarFilter, setCalendarFilter] = useState(List([]));
 
-    useAuth({auth:'admin', redirect:'/login'});
+    useAuth({auth:['admin'], redirect:'/login'})
 
     const dispatch = useDispatch();
     const schedules = useSelector((state) => state.schedules);
@@ -71,32 +72,32 @@ export default function dashboard(props) {
         }
     }, [])
 
-    const handleShowModal = (bool) => {
+    const handleShowModal = useCallback((bool) => {
         if (!bool && schedules.isLoading)
             return;
 
         dispatch(clearInputErrors());
         dispatch(setShowModal(bool));
-    }
+    }, [schedules.isLoading]);
 
-    const onChangeScheduleInput = (e) => {
+    const onChangeScheduleInput = useCallback((e) => {
         setScheduleInputs(scheduleInputs.set(e.target.name, e.target.value));
-    }
+    }, [scheduleInputs]);
 
-    const onAddScheduleUser = (index) => {
+    const onAddScheduleUser = useCallback((index) => {
         const admin = admins.data[index];
         const item = scheduleInputs.get('users').find((user) => user.get('id') === admin.id);
         if (!item && userId !== admin.id) {
             setScheduleInputs(scheduleInputs.update('users', (users) => users.push(Map(admin))))
         }
-    }
+    }, [admins.data, scheduleInputs]);
 
-    const onRemoveScheduleUser = (index) => {
+    const onRemoveScheduleUser = useCallback((index) => {
         setScheduleInputs(scheduleInputs.update('users', (users) => users.splice(index, 1)));
-    }
+    }, [scheduleInputs]);
 
 
-    const handleCreateSchedule = () => {
+    const handleCreateSchedule = useCallback(() => {
         let postData = {
             'calendar_id':scheduleInputs.get('calendar_id'),
             'title':scheduleInputs.get('title'),
@@ -116,14 +117,14 @@ export default function dashboard(props) {
         }
 
         dispatch(requestCreateSchedule(postData));
-    }
+    }, [scheduleInputs]);
 
-    const [deleteModal, setDeleteModal] = useState({show:false, text:'', id:null});
+    const [deleteModal, setDeleteModal] = useState({show:false, title:'', text:'', id:null});
     const handleDeleteModal = (bool) => {
         setDeleteModal({...deleteModal, show:bool});
     }
     const handleDeletePopup = useCallback(data => {
-        setDeleteModal({...deleteModal, show:true, text:'[일정] ' + data.schedule.title, id:data.schedule.id});
+        setDeleteModal({...deleteModal, show:true, title:'일정 삭제', text:'[일정] ' + data.schedule.title, id:data.schedule.id});
     }, []);
     const onSubmitDelete = () => {
         const postData = {id: deleteModal.id};
@@ -131,7 +132,7 @@ export default function dashboard(props) {
         handleDeleteModal(false);
     }
 
-    const handleUpdateSchedule = () => {
+    const handleUpdateSchedule = useCallback(() => {
         let postData = {
             'id':scheduleInputs.get('id'),
             'calendar_id':scheduleInputs.get('calendar_id'),
@@ -151,7 +152,7 @@ export default function dashboard(props) {
             postData.finish_at = scheduleInputs.get('date') + ' ' + scheduleInputs.get('finish_at');
         }
         dispatch(requestUpdateSchedule(postData));
-    }
+    }, [scheduleInputs]);
 
     const handleUpdatePopup = useCallback((data) => {
         const index = schedules.data.findIndex(schedule => schedule.id === data.schedule.id);
@@ -174,9 +175,17 @@ export default function dashboard(props) {
                 'users':schedule.users.map((user) => ({'id':user.user.id, 'name':user.user.name})),
             };
 
-            const start = moment(new Date(data.changes.start));
-            const end = moment(new Date(data.changes.end));
-            const date = moment(new Date(data.changes.start));
+            let start,end,date;
+            try {
+                start = moment(new Date(data.changes.start));
+                end = moment(new Date(data.changes.end));
+                date = moment(new Date(data.changes.start));
+            }
+            catch (e) {
+                start = moment(new Date(data.schedule.start));
+                end = moment(new Date(data.schedule.end));
+                date = moment(new Date(data.schedule.start));
+            }
 
             if (schedule.isAllDay) {
                 item.start_at = start.format('YYYY-MM-DD');
@@ -215,7 +224,13 @@ export default function dashboard(props) {
         calendarInstance.setDate();
     }, [])
 
-    const toggleFilter = (type, id) => {
+
+
+
+    const [filterSchedules, setFilterSchedules] = useState([]);
+    const [monthOffset, setMonthOffset] = useState(0);
+
+    const toggleFilter = useCallback((type, id) => {
         if (type === 'user') {
             const index = userFilter.findIndex((item) => item === id)
             if (index >= 0) {
@@ -234,18 +249,18 @@ export default function dashboard(props) {
                 setCalendarFilter(calendarFilter.push(id))
             }
         }
-    }
+    }, [calendarFilter, userFilter])
 
-    const onClickAllFilter = (type) => {
+    const onClickAllFilter = useCallback((type) => {
         if (type === 'user') {
             setUserFilter(List([]))
         }
         else if (type === 'calendar') {
             setCalendarFilter(List([]))
         }
-    }
+    }, [])
 
-    const filterSchedule = useCallback(() => {
+    useEffect(() => {
         let items = [...schedules.data];
 
         if (userFilter.count() !== 0) {
@@ -262,8 +277,42 @@ export default function dashboard(props) {
             })
         }
 
-        return [...items];
-    },[schedules.data, userFilter, calendarFilter] )
+        setFilterSchedules(items)
+    }, [schedules.data, userFilter, calendarFilter])
+
+    const handleCalendar = useCallback((type = 'today') => {
+        const calendarInstance = calendarRef.current.getInstance();
+        if (type === 'next') {
+            setMonthOffset(monthOffset+1)
+            calendarInstance.next();
+        } else if (type === 'back') {
+            setMonthOffset(monthOffset-1)
+            calendarInstance.prev();
+        } else {
+            setMonthOffset(0)
+            calendarInstance.today();
+        }
+    }, [monthOffset]);
+
+    // const filterSchedule = useCallback(() => {
+    //     let items = [...schedules.data];
+    //
+    //     if (userFilter.count() !== 0) {
+    //         //유저 필터
+    //         items = items.filter((item) => {
+    //             return (userFilter.findIndex(userId => (userId === item.user_id))) >= 0;
+    //         })
+    //     }
+    //
+    //     if (calendarFilter.count() !== 0) {
+    //         //일정 필터
+    //         items = items.filter((item) => {
+    //             return (calendarFilter.findIndex(calendarId => (calendarId === item.calendar_id))) >= 0;
+    //         })
+    //     }
+    //
+    //     return [...items];
+    // },[schedules.data, userFilter, calendarFilter] )
 
 
     return(
@@ -282,7 +331,7 @@ export default function dashboard(props) {
                                     </div>
                                     :
                                     <div className={'m-1'}>
-                                        <GomiCalendarFilter calendars={schedules.calendars} users={admins.data} userFilter={userFilter} calendarFilter={calendarFilter} toggleFilter={toggleFilter} onClickAllFilter={onClickAllFilter}/>
+                                        <GomiCalendarFilter calendars={schedules.calendars} users={admins.data} userFilter={userFilter} calendarFilter={calendarFilter} toggleFilter={toggleFilter} onClickAllFilter={onClickAllFilter} schedules={schedules.data}/>
                                     </div>
                                 }
                             </Card.Body>
@@ -298,10 +347,10 @@ export default function dashboard(props) {
                                     <Preloader type={"wandering-cubes"} variant={'warning'} center/>
                                 </div>
                                 :
-                                <GomiCalendar schedules={filterSchedule()} calendars={schedules.calendars}
+                                <GomiCalendar schedules={filterSchedules} calendars={schedules.calendars}
                                               handleCreatePopup={handleCreatePopup} calendarRef={calendarRef}
                                               isLoading={schedules.isLoading} handleDeletePopup={handleDeletePopup}
-                                              handleUpdatePopup={handleUpdatePopup}
+                                              handleUpdatePopup={handleUpdatePopup} monthOffset={monthOffset} handleCalendar={handleCalendar}
                                 />
                             }
                         </Card>

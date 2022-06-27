@@ -32,7 +32,7 @@ export default function companies() {
     const companies = useSelector(({ companies }) => companies);
     const [isMounted, setIsMounted] = useState(false);
 
-    useAuth({auth:'admin',redirect:'/login'});
+    // useAuth({auth:'admin',redirect:'/login'});
 
 
     useEffect(() => {

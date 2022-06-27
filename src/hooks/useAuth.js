@@ -1,6 +1,4 @@
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 
 export async function useAuth ({auth, redirect}) {
@@ -19,8 +17,11 @@ export async function useAuth ({auth, redirect}) {
             userAuth = 'user';
         }
 
-        if (auth !== userAuth) {
+        if (auth.indexOf(userAuth)) {
             router.replace(redirect);
         }
+    }
+    else {
+        return true;
     }
 }

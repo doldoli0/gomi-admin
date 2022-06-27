@@ -3,12 +3,13 @@ import "../scss/style.default.scss"
 import 'react-toastify/dist/ReactToastify.css';
 
 import Layout from "../components/Layout"
-import {SSRProvider} from "react-bootstrap"
+import {Container, SSRProvider} from "react-bootstrap"
 import {wrapper} from "../store";
 import {ToastContainer} from "react-toastify";
 import {useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {requestUser, setIsLoaded} from "../store/modules/user";
+import Preloader from "../components/Preloader";
 
 function App({Component, pageProps}) {
     const dispatch = useDispatch();
@@ -26,7 +27,9 @@ function App({Component, pageProps}) {
     }, [user.isLoaded])
 
     if (!user.isLoaded) {
-        return 'loading....'
+        return(
+            <Preloader type="pulse" center />
+        )
     }
 
     return (

@@ -1,8 +1,8 @@
-import {Button} from "react-bootstrap";
+import {ButtonGroup, Button} from "react-bootstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowLeft, faArrowRight, faRedo} from "@fortawesome/free-solid-svg-icons";
 import dynamic from "next/dynamic";
-import {forwardRef, useRef} from "react";
+import {forwardRef, useCallback, useEffect, useRef, useState} from "react";
 import moment from "moment";
 import Preloader from "./Preloader";
 
@@ -12,7 +12,17 @@ const CalendarWithForwardedRef = forwardRef((props, ref) => (
     <TuiCalendar {...props} forwardedRef={ref}/>
 ));
 
-const GomiCalendar = ({calendars, schedules, calendarRef, isLoading, handleDeletePopup, handleCreatePopup, handleUpdatePopup}) => {
+const GomiCalendar = ({
+                          calendars,
+                          schedules,
+                          calendarRef,
+                          isLoading, monthOffset,
+                          handleDeletePopup,
+                          handleCreatePopup,
+                          handleUpdatePopup, handleCalendar,
+                      }) => {
+
+
 
 
     const calendarItems = calendars.map((calendar, index) => {
@@ -175,44 +185,59 @@ const GomiCalendar = ({calendars, schedules, calendarRef, isLoading, handleDelet
         "week.dayGridSchedule.marginRight": "10px"
     }
 
-    const handleCalendar = (type = 'today') => {
-        const calendarInstance = calendarRef.current.getInstance();
-        if (type === 'next') {
-            calendarInstance.next();
-        } else if (type === 'back') {
-            calendarInstance.prev();
-        } else {
-            calendarInstance.today();
-        }
-    }
+    const [scheduleItems, setScheduleItems] = useState([]);
 
-    const ScheduleItems = schedules.map((schedule) => (
-        {
-            'id':schedule.id,
-            'calendarId': schedule.calendar_id,
-            'start': moment(schedule.start_at).format('YYYY-MM-DD[T]hh:mm'),
-            'end': moment(schedule.finish_at).format('YYYY-MM-DD[T]hh:mm'),
-            'title': schedule.title,
-            'category': 'time',
-            'location': schedule.location,
-            'attendees': schedule.users.map((user)=>user.user.name),
-            'body': schedule.memo,
-            'raw': {name:schedule.user.name},
-        }
-    ))
+    useEffect(() => {
+        setScheduleItems(schedules.map((schedule) => (
+            {
+                'id':schedule.id,
+                'calendarId': schedule.calendar_id,
+                'start': moment(schedule.start_at).format('YYYY-MM-DD[T]hh:mm'),
+                'end': moment(schedule.finish_at).format('YYYY-MM-DD[T]hh:mm'),
+                'title': schedule.title,
+                'category': 'time',
+                'location': schedule.location,
+                'attendees': schedule.users.map((user)=>user.user.name),
+                'body': schedule.memo,
+                'raw': {name:schedule.user.name},
+            }
+        )))
+    }, [schedules])
 
+    // const ScheduleItems = schedules.map((schedule) => (
+    //     {
+    //         'id':schedule.id,
+    //         'calendarId': schedule.calendar_id,
+    //         'start': moment(schedule.start_at).format('YYYY-MM-DD[T]hh:mm'),
+    //         'end': moment(schedule.finish_at).format('YYYY-MM-DD[T]hh:mm'),
+    //         'title': schedule.title,
+    //         'category': 'time',
+    //         'location': schedule.location,
+    //         'attendees': schedule.users.map((user)=>user.user.name),
+    //         'body': schedule.memo,
+    //         'raw': {name:schedule.user.name},
+    //     }
+    // ))
+
+    const today = new moment().add(monthOffset, 'months')
     return (
         <>
-            <div className={'m-2'}>
-                <Button onClick={() => handleCalendar('back')} className={'rounded-circle'}>
-                    <FontAwesomeIcon icon={faArrowLeft}/>
-                </Button>
-                <Button onClick={() => handleCalendar('today')} className={'rounded-circle'}>
-                    <FontAwesomeIcon icon={faRedo}/>
-                </Button>
-                <Button onClick={() => handleCalendar('next')} className={'rounded-circle'}>
-                    <FontAwesomeIcon icon={faArrowRight}/>
-                </Button>
+            <div className={'m-2 text-center'}>
+                <h3>
+                    {today.format('YYYY년 MM월')}
+
+                </h3>
+                <ButtonGroup>
+                    <Button onClick={() => handleCalendar('back')}>
+                        <FontAwesomeIcon icon={faArrowLeft}/>
+                    </Button>
+                    <Button onClick={() => handleCalendar('today')} variant={'info'}>
+                        <FontAwesomeIcon icon={faRedo}/>
+                    </Button>
+                    <Button onClick={() => handleCalendar('next')}>
+                        <FontAwesomeIcon icon={faArrowRight}/>
+                    </Button>
+                </ButtonGroup>
             </div>
             <CalendarWithForwardedRef
                 // onAfterRenderSchedule={onAfterRenderSchedule}
@@ -245,7 +270,7 @@ const GomiCalendar = ({calendars, schedules, calendarRef, isLoading, handleDelet
                 month={{
                     daynames: ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'],
                 }}
-                schedules={ScheduleItems}
+                schedules={scheduleItems}
                 scheduleView
                 taskView
                 theme={themeConfig}

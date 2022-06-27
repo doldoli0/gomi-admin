@@ -137,6 +137,10 @@ export default function CompanyDetail () {
         setAddressModalShow(false);
     }
 
+    const onClickBack = () => {
+        router.back();
+    }
+
 
     return (
         <Container fluid className="px-lg-4 px-xl-5">
@@ -146,11 +150,9 @@ export default function CompanyDetail () {
                         <Col lg={4}>
                             <div className="d-grid gap-2 mb-3">
                                 <ButtonGroup size="lg">
-                                    <Link href={'/companies'}>
-                                        <Button variant="outline-primary">
-                                            <FontAwesomeIcon icon={faArrowLeft}/>{' '}뒤로 가기
-                                        </Button>
-                                    </Link>
+                                    <Button variant="outline-primary" onClick={onClickBack}>
+                                        <FontAwesomeIcon icon={faArrowLeft}/>{' '}뒤로 가기
+                                    </Button>
                                     <Button variant={'outline-info'} as={'a'} href={`/cal?before_fee=${company.get('before_fee')}&after_fee=${company.get('after_fee')}&sales=${company.get('sales')}`} target={'_blank'}>
                                         <FontAwesomeIcon icon={faChartArea}/>{' '}수수료 차트
                                     </Button>

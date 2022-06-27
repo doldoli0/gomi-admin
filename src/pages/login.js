@@ -35,6 +35,9 @@ export default function login() {
     if (user.isAuth && user.data.role === 'admin') {
         router.replace('/');
     }
+    else if (user.isAuth && user.data.role === 'tm') {
+        router.replace('/tm/qna');
+    }
 
     useEffect(() => {
         if (emailRef.current && passwordRef.current) {

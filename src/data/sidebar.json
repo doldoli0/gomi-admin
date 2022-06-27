@@ -26,6 +26,21 @@
           {
             "name": "메세지",
             "link": "/user/messages"
+          },
+          {
+            "name": "정보 수정",
+            "link": "/user/update"
+          }
+        ]
+      },
+      {
+        "name": "TM",
+        "link": "/tm",
+        "icon": "design-1",
+        "links": [
+          {
+            "name": "QNA",
+            "link": "/tm/qna"
           }
         ]
       }
