@@ -14,8 +14,8 @@ export default function UserMenu() {
 
     const dispatch = useDispatch();
     const onClickLogout = async () => {
-        dispatch(requestLogout());
         router.push('/login');
+        dispatch(requestLogout());
     }
 
 

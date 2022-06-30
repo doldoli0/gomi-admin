@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import ApiController from "../../lib/ApiController";
+import moment from "moment";
 
 const initialState = {isLoaded:false, isLoading:false, data:[], calendars:[], showModal:false, inputErrors:{}}// 초기 상태 정의
 
@@ -109,7 +110,15 @@ const schedulesSlice = createSlice({
             state.inputErrors = initialState.inputErrors;
         });
         builder.addCase(requestCreateSchedule.fulfilled, (state, { payload }) => {
-            state.data.push(payload.schedule)
+            const start = moment(payload.schedule.start_at);
+            const index = state.data.findIndex(item => moment(item.start_at).isAfter(start));
+            if (index >= 0) {
+                state.data.splice(index, 0, payload.schedule)
+            }
+            else {
+                state.data.push(payload.schedule)
+            }
+
             state.showModal = false;
             state.isLoading = false;
         });

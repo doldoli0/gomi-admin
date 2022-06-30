@@ -48,24 +48,38 @@ const GomiMessages = ({
                         </thead>
                         <tbody>
                         {messages.map((message, index) => {
-                            let category, link;
+                            let category, link, actionUser;
+                            if (message.getIn(['action_user', 'name'])) {
+                                actionUser = message.getIn(['action_user', 'name']);
+                            }
+                            else {
+                                actionUser = '[SYSTEM]';
+                            }
+
                             switch (message.get('action')) {
                                 case 'company':
                                     category = '대리점';
                                     link = `/companies/${message.get('action_id')}`;
                                     break;
+                                case 'schedule':
+                                    category = '일정';
+                                    link = `/`;
+                                    break;
                                 default:
-                                    category = '없음';
+                                    category = '';
+                                    link = `/user/messages`;
                             }
 
 
                             return (
                                 <tr key={index}>
-                                    <td>{message.getIn(['action_user', 'name'])}</td>
+                                    <td>{actionUser}</td>
                                     <td>
-                                        <Link href={link}>
-                                            <Button size={'sm'}>{category}</Button>
-                                        </Link>
+                                        {category !== '' &&
+                                            <Link href={link}>
+                                                <Button size={'sm'}>{category}</Button>
+                                            </Link>
+                                        }
                                     </td>
                                     <td className={`text-${message.get('color')}`}>{message.get('message')}</td>
                                     <td><Moment format={'YYYY-MM-DD HH:mm'}>{message.get('created_at')}</Moment></td>

@@ -3,8 +3,9 @@ import {Dropdown, NavItem, NavLink, Spinner} from "react-bootstrap"
 import Icon from "../Icon"
 import Avatar from "../Avatar"
 import Preloader from "../Preloader";
+import Link from "next/link";
 
-export default function Messages({messages}) {
+export default function Messages({messages, onClickMessage}) {
     // const messages = [
     //   {
     //     name: "Jason Doe",
@@ -16,6 +17,8 @@ export default function Messages({messages}) {
     //     name: "Ashley Wood",
     //   },
     // ]
+
+
     if (messages.isLoading) {
         return (
             <Preloader type="pulse" variant="secondary"/>
@@ -39,20 +42,34 @@ export default function Messages({messages}) {
                 aria-labelledby="messages"
             >
                 {messages.data.map((message, index) => {
-                    let action;
+                    let actionUser;
+                    if (message.action_user) {
+                        actionUser = message.action_user.name;
+                    }
+                    else {
+                        actionUser = 'System';
+                    }
+
+                    let category, link;
                     switch (message.action) {
                         case 'company':
-                            action = '회사';
+                            category = '대리점';
+                            link = `/companies/${message.action_id}`;
+                            break;
+                        case 'schedule':
+                            category = '일정';
+                            link = `/`;
                             break;
                         default:
-                            action = '';
+                            category = '';
+                            link = `/user/messages`;
                     }
 
                     return (
                         <Dropdown.Item
                             key={index}
                             className="d-flex align-items-center p-3"
-                            href="#"
+                            onClick={() => {onClickMessage(index)}}
                         >
                             {/*<Avatar*/}
                             {/*  image={message.avatar}*/}
@@ -63,8 +80,8 @@ export default function Messages({messages}) {
                             {/*/>*/}
 
                             <div className="pt-1">
-                                <h6 className={`fw-bold mb-0`}>{message.action_user.name}</h6>
-                                <span className={`text-muted text-sm text-${message.color}`}>{message.message}</span>
+                                <h6 className={`fw-bold mb-0`}>{actionUser}</h6>
+                                <div className={`text-muted text-sm text-${message.color}`}>{category} {message.message}</div>
                             </div>
                         </Dropdown.Item>
                     )
@@ -72,7 +89,9 @@ export default function Messages({messages}) {
 
                 <Dropdown.Divider/>
                 <Dropdown.Item className="text-center" href="#">
-                    <small className="fw-bold text-uppercase">View all messages</small>
+                    <Link href={'/user/messages'}>
+                        <small className="fw-bold text-uppercase">View all messages</small>
+                    </Link>
                 </Dropdown.Item>
             </Dropdown.Menu>
         </Dropdown>

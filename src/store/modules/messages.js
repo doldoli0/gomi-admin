@@ -5,6 +5,24 @@ import moment from "moment";
 const initialState = {isLoading:false, data:[]}// 초기 상태 정의
 
 
+export const requestCheckMessage = createAsyncThunk(
+    "messages/requestCheckMessage",
+    async (postData, {rejectWithValue}) => {
+        try {
+            const response = await ApiController.post(`/update/user/message`, postData);
+            return response.data;
+        }
+        catch (err) {
+            if (!err.response) {
+                throw err
+            }
+
+            return rejectWithValue(err.response.data)
+        }
+    },
+)
+
+
 export const requestGetMessages = createAsyncThunk(
     "messages/requestMessages",
     async (_, {rejectWithValue}) => {

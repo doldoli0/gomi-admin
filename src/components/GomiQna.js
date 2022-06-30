@@ -46,7 +46,7 @@ const GomiQna = ({
                                 <Col className={'p-1'}>
                                     <InputGroup>
                                         <InputGroup.Text>검색어</InputGroup.Text>
-                                        <Form.Control placeholder={'단축키 `'} autoComplete={'off'} value={searchText} onChange={onChangeSearchText} ref={searchTextRef}/>
+                                        <Form.Control placeholder={'초기화 단축키 [`] / 검색어#카테고리 [카테고리 검색]'} autoComplete={'off'} value={searchText} onChange={onChangeSearchText} ref={searchTextRef}/>
                                     </InputGroup>
                                     <div className={'mt-1'}>
                                         <Form.Check

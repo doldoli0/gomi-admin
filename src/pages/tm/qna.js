@@ -104,12 +104,18 @@ export default function Qna() {
     }, [createInputs, qnas]);
 
     const onChangeSearchText = useCallback((e) => {
-        setSearchText(e.target.value.replace('`', ''))
+        setSearchText(e.target.value.replace('`', '').toUpperCase())
     }, [searchText])
 
     useEffect(() => {
         if (!isLoading) {
-            if (searchText === '') {
+            const regex = searchText.match(/\#.+?$/);
+            const category = regex?regex[0].replace('#', ''):'';
+            const text = searchText.replace(/\#.+?$/, '');
+
+            let filterItems = qnas;
+
+            if (text === '' && category === '') {
                 if (isAllQnas) {
                     setFilterQnas(qnas);
                 }
@@ -118,7 +124,14 @@ export default function Qna() {
                 }
             }
             else {
-                const filterItems = qnas.filter((item) => (item.get('question').includes(searchText) || item.get('answer').includes(searchText) || item.get('keyword').includes(searchText)));
+                if (text !== '') {
+                    filterItems = filterItems.filter((item) => (item.get('question').toUpperCase().includes(text) || item.get('answer').toUpperCase().includes(text)));
+                }
+
+                if (category !== '') {
+                    filterItems = filterItems.filter((item) => (item.get('keyword').includes(category)));
+                }
+
                 setFilterQnas(filterItems);
             }
         }

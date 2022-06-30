@@ -7,6 +7,14 @@ import apiController from "../../lib/ApiController";
 import moment from "moment";
 import {removeMessage} from "../../store/modules/messages";
 
+export async function getStaticProps() {
+    return {
+        props: {
+            title: "메세지 목록"
+        },
+    }
+}
+
 export default function Messages() {
     const [isLoading, setIsLoading] = useState(false);
     const [searchInputs, setSearchInputs] = useState(Map({}));

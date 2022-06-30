@@ -7,7 +7,7 @@ export default function Footer() {
       <Container fluid>
         <Row>
           <Col md={6} className="text-center text-md-start fw-bold">
-            <p className="mb-2 mb-md-0">Gomi Paymensts &copy; 2022</p>
+            <p className="mb-2 mb-md-0">Gomi Payments &copy; 2022</p>
           </Col>
           <Col md={6} className="text-center text-md-end text-gray-400">
             <p className="mb-0">Version 1.0</p>

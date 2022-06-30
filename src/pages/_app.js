@@ -11,6 +11,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {requestUser, setIsLoaded} from "../store/modules/user";
 import Preloader from "../components/Preloader";
 
+
 function App({Component, pageProps}) {
     const dispatch = useDispatch();
     const user = useSelector((state) => state.user);

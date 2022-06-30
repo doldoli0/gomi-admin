@@ -1,8 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import ApiController from "../../lib/ApiController";
-import {toast} from "react-toastify";
-import {requestCreateCompany} from "./companies";
-import {isSet} from "immutable";
+import Echo from "laravel-echo";
 
 const initialState = {
     isAuth: false,
@@ -11,7 +9,6 @@ const initialState = {
     isLoaded: false,
     inputErrors: {},
 }; // 초기 상태 정의
-
 
 export const requestLogout = createAsyncThunk(
     "user/requestLogout",
@@ -65,6 +62,24 @@ export const requestUser = createAsyncThunk(
     },
 );
 
+// export const openPusher = createAsyncThunk(
+//     "user/openPusher",
+//     async (_, {rejectWithValue}, state) => {
+//         try {
+//             state.pusher = new Pusher('a7792f9b8df6f7adc4f5', {
+//                 cluster: 'ap3'
+//             });
+//             // return response.data;
+//         }
+//         catch (err) {
+//             if (!err.response) {
+//                 throw err
+//             }
+//             return rejectWithValue(err.response.data)
+//         }
+//     },
+// )
+
 
 const userSlice = createSlice({
     name: 'user',
@@ -78,7 +93,11 @@ const userSlice = createSlice({
         },
         setData: (state, action) => {
 
-        }
+        },
+        logout: (state, action) => {
+            sessionStorage.removeItem('token');
+            state =  initialState;
+        },
     },
     extraReducers: builder => {
         builder.addCase(requestLogin.pending, (state) =>{
@@ -86,7 +105,6 @@ const userSlice = createSlice({
             state.isLoading = true;
         });
         builder.addCase(requestLogin.fulfilled, (state, { payload }) => {
-            //로그인 성공
             sessionStorage.setItem('token', payload.token);
             state.data = payload.user;
             state.isAuth = true;
@@ -133,5 +151,5 @@ const userSlice = createSlice({
     }
 });
 
-export const { setAuth, setData, setIsLoaded } = userSlice.actions; // 액션 생성함수
+export const { setAuth, setData, setIsLoaded, logout } = userSlice.actions; // 액션 생성함수
 export default userSlice.reducer; // 리듀서

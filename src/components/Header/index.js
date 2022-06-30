@@ -8,8 +8,10 @@ import Messages from "./Messages"
 import UserMenu from "./UserMenu"
 import GomiTools from "./GomiTools";
 import {useDispatch, useSelector} from "react-redux";
-import {requestGetMessages} from "../../store/modules/messages";
+import {removeMessage, requestGetMessages} from "../../store/modules/messages";
 import {requestGetAdmins} from "../../store/modules/admins";
+import {useRouter} from "next/router";
+import apiController from "../../lib/ApiController";
 
 export default function Header({ setSidebarShrink, sidebarShrink }) {
   const dispatch = useDispatch();
@@ -19,6 +21,25 @@ export default function Header({ setSidebarShrink, sidebarShrink }) {
     dispatch(requestGetMessages());
     dispatch(requestGetAdmins());
   }, [])
+
+  const route = useRouter();
+  const onClickMessage = (index) => {
+    const postData = {'id':messages.data[index].id};
+    dispatch(removeMessage(postData));
+    apiController.post('/update/user/message', postData);
+
+    switch (messages.data[index].action) {
+      case 'message':
+        route.push('/user/messages');
+        return;
+      case 'company':
+        route.push(`/companies/${messages.data[index].action_id}`);
+        return;
+      case 'schedule':
+        route.push(`/`);
+        return;
+    }
+  }
 
   return (
     <header className="header">
@@ -45,7 +66,7 @@ export default function Header({ setSidebarShrink, sidebarShrink }) {
           <GomiTools/>
           {/*<Search />*/}
           {/*<Notifications />*/}
-          <Messages messages={messages}/>
+          <Messages messages={messages} onClickMessage={onClickMessage}/>
           <UserMenu />
         </div>
       </Navbar>

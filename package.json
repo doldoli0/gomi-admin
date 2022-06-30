@@ -64,6 +64,8 @@
   },
   "devDependencies": {
     "@svgr/webpack": "^5.5.0",
+    "laravel-echo": "^1.12.0",
+    "pusher-js": "^7.1.1-beta",
     "redux-logger": "^3.0.6"
   }
 }

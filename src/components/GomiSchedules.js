@@ -1,7 +1,21 @@
 import {Badge, Button, Card, Table} from "react-bootstrap";
 import CardHeaderMore from "./CardHeaderMore";
+import Moment from "react-moment";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {
+    faClock,
+    faLocationArrow,
+    faMap,
+    faMapMarked, faMapMarkerAlt,
+    faMapPin,
+    faMarker,
+    faSearchLocation, faTimes, faTimesCircle, faUser,
+    faUsers
+} from "@fortawesome/free-solid-svg-icons";
+import moment from "moment";
 
-const GomiSchedules = ({schedules}) => {
+const GomiSchedules = ({schedules, calendars}) => {
+    const now = moment();
 
     return (
         <Card className="card-table mb-4">
@@ -13,19 +27,35 @@ const GomiSchedules = ({schedules}) => {
                 <Table borderless hover responsive className="mb-0">
                     <thead>
                     <tr>
-                        <th>담당 사원</th>
-                        <th>일정</th>
-                        <th>종류</th>
-                        <th>기간</th>
-                        <th>상태</th>
-                        <th>요청</th>
+                        <th>일정 이름</th>
+                        <th>시작</th>
+                        <th>종료</th>
+                        <th>사원</th>
+                        <th>일정 종류</th>
+                        <th>장소</th>
+                        <th>etc</th>
                     </tr>
                     </thead>
                     <tbody>
                     {schedules.map((item, index) => {
+                        const start_at = moment(item.start_at);
+
                         return (
-                            <tr className="align-middle" key={index}>
-                                {/*<td>#{item.id}</td>*/}
+                            <tr className={`align-middle ${now.isAfter(start_at) && "bg-opacity-10 bg-secondary"}`} key={index}>
+                                <td>{item.title}</td>
+                                <td><FontAwesomeIcon icon={faClock}/> <span className={'fw-bold'}><Moment format={'YYYY-MM-DD HH:mm'}>{item.start_at}</Moment></span></td>
+                                <td><FontAwesomeIcon icon={faClock}/> <span className={'fw-bold'}><Moment format={'YYYY-MM-DD HH:mm'}>{item.finish_at}</Moment></span></td>
+                                <td><FontAwesomeIcon icon={faUser}/> {item.user.name}</td>
+                                <td>{calendars[item.calendar_id].name}</td>
+                                <td><FontAwesomeIcon icon={faMapMarkerAlt}/> {item.location}</td>
+                                <td>
+                                    <FontAwesomeIcon icon={faUsers}/>
+                                    {item.users.map((item, index) => (
+                                        <>
+                                            {' '}<Badge key={index}>{item.user.name}</Badge>
+                                        </>
+                                    ))}
+                                </td>
                                 {/*<td>*/}
                                 {/*    <strong>{item.customer.name}</strong>*/}
                                 {/*    <br/>*/}
@@ -64,9 +94,9 @@ const GomiSchedules = ({schedules}) => {
                 </Table>
             </Card.Body>
             <Card.Footer className="text-end">
-                <Button variant="outline-dark" href="#!">
-                    See all orders
-                </Button>
+                {/*<Button variant="outline-dark" href="#!">*/}
+                {/*    See all orders*/}
+                {/*</Button>*/}
             </Card.Footer>
         </Card>
     )

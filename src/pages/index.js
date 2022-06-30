@@ -124,8 +124,15 @@ export default function dashboard(props) {
         setDeleteModal({...deleteModal, show:bool});
     }
     const handleDeletePopup = useCallback(data => {
+        const index = schedules.data.findIndex(schedule => schedule.id === data.schedule.id);
+        const schedule = schedules.data[index];
+        if (schedule.user.id !== userId) {
+            toast.error('내 일정이 아닙니다.');
+            return;
+        }
+
         setDeleteModal({...deleteModal, show:true, title:'일정 삭제', text:'[일정] ' + data.schedule.title, id:data.schedule.id});
-    }, []);
+    }, [schedules.data, userId]);
     const onSubmitDelete = () => {
         const postData = {id: deleteModal.id};
         dispatch(requestDeleteSchedule(postData));
@@ -200,7 +207,7 @@ export default function dashboard(props) {
             setScheduleInputs(fromJS({...item}));
             dispatch(setShowModal(true));
         }
-    }, [schedules.data])
+    }, [schedules.data, userId])
 
     const handleCreatePopup = useCallback(schedule => {
         const start = moment(new Date(schedule.start));
@@ -220,8 +227,8 @@ export default function dashboard(props) {
         dispatch(setShowModal(true));
 
 
-        const calendarInstance = calendarRef.current.getInstance();
-        calendarInstance.setDate();
+        // const calendarInstance = calendarRef.current.getInstance();
+        schedule.guide.clearGuideElement();
     }, [])
 
 
@@ -358,7 +365,7 @@ export default function dashboard(props) {
                 </Row>
                 <Row>
                     <Col className={'mt-2'}>
-                        <GomiSchedules schedules={schedules.data}/>
+                        <GomiSchedules schedules={filterSchedules} calendars={schedules.calendars}/>
                     </Col>
                 </Row>
             </section>

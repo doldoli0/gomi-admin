@@ -3,7 +3,7 @@
     "name": "Main",
     "items": [
       {
-        "name": "Dashboard",
+        "name": "대시보드",
         "link": "/",
         "icon": "real-estate-1"
       },
@@ -17,9 +17,14 @@
             "link": "/companies"
           }
         ]
-      },
+      }
+    ]
+  },
+  {
+    "name": "User",
+    "items": [
       {
-        "name": "내 정보",
+        "name": "정보",
         "link": "/user",
         "icon": "user-1",
         "links": [
@@ -28,22 +33,22 @@
             "link": "/user/messages"
           },
           {
-            "name": "정보 수정",
-            "link": "/user/update"
-          }
-        ]
-      },
-      {
-        "name": "TM",
-        "link": "/tm",
-        "icon": "design-1",
-        "links": [
-          {
-            "name": "QNA",
-            "link": "/tm/qna"
+            "name": "보안",
+            "link": "/user/user"
           }
         ]
       }
     ]
+  },
+  {
+    "name": "TM",
+    "items": [
+      {
+        "name": "QNA",
+        "icon": "design-1",
+        "link": "/tm/qna"
+      }
+    ]
   }
+
 ]

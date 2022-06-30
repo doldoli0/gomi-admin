@@ -33,9 +33,11 @@ const GomiCalendarFilter = ({calendars, users, toggleFilter, userFilter, calenda
                         <div className="ms-2 me-auto">
                             <div className="fw-bold">{calendar.name}</div>
                         </div>
-                        <Badge bg="danger" pill>
-                            {count}
-                        </Badge>
+                        {count !== 0 &&
+                            <Badge bg="dark" pill className={'fw-bold'}>
+                                {count}
+                            </Badge>
+                        }
                     </ListGroup.Item>
                 )
             })}
@@ -68,9 +70,11 @@ const GomiCalendarFilter = ({calendars, users, toggleFilter, userFilter, calenda
                         <div className="ms-2 me-auto">
                             <div className="fw-bold">{user.name}</div>
                         </div>
-                        <Badge bg="danger" pill>
-                            {count}
-                        </Badge>
+                        {count !== 0 &&
+                            <Badge bg="dark" pill className={'fw-bold'}>
+                                {count}
+                            </Badge>
+                        }
                     </ListGroup.Item>
                 )
             })}
