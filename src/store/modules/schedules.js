@@ -81,14 +81,49 @@ const schedulesSlice = createSlice({
         setShowModal: (state, action) => {
             state.showModal = action.payload;
         },
-        removeSchedule: (state, action) => {
-            const index = state.data.findIndex(schedule => schedule.id === action.payload);
-            if (index >= 0) {
-                state.data.splice(index, 1);
+        removeSchedule: (state, {payload}) => {
+            if (state.isLoaded) {
+                const index = state.data.findIndex(schedule => schedule.id === payload.id);
+                if (index >= 0) {
+                    state.data.splice(index, 1);
+                }
             }
         },
         clearInputErrors: (state, action) => {
             state.inputErrors = initialState.inputErrors;
+        },
+        createSchedule: (state, {payload}) => {
+            if (state.isLoaded) {
+                const start = moment(payload.schedule.start_at);
+                const index = state.data.findIndex(item => moment(item.start_at).isAfter(start));
+                if (index >= 0) {
+                    state.data.splice(index, 0, payload.schedule)
+                }
+                else {
+                    state.data.push(payload.schedule)
+                }
+            }
+        },
+        updateSchedule: (state, {payload}) => {
+            if (state.isLoaded) {
+                const index = state.data.findIndex(schedule => schedule.id === payload.schedule.id);
+                if (index >= 0) {
+                    state.data[index] = payload.schedule;
+                    state.data.sort((a,b) => {
+                        const startA = moment(a.start_at);
+                        const startB = moment(b.start_at);
+                        if (startA.isAfter(startB)) {
+                            return 1;
+                        }
+                        else if (startB.isAfter(startA)) {
+                            return -1;
+                        }
+                        else {
+                            return 0;
+                        }
+                    })
+                }
+            }
         },
     },
     extraReducers: builder => {
@@ -138,6 +173,19 @@ const schedulesSlice = createSlice({
             if (index >= 0) {
                 state.data[index] = payload.schedule;
             }
+            state.data.sort((a,b) => {
+                const startA = moment(a.start_at);
+                const startB = moment(b.start_at);
+                if (startA.isAfter(startB)) {
+                    return 1;
+                }
+                else if (startB.isAfter(startA)) {
+                    return -1;
+                }
+                else {
+                    return 0;
+                }
+            })
             state.showModal = false;
             state.isLoading = false;
         });
@@ -161,5 +209,5 @@ const schedulesSlice = createSlice({
     }
 });
 
-export const { setShowModal, removeSchedule, clearInputErrors } = schedulesSlice.actions; // 액션 생성함수
+export const { setShowModal, removeSchedule, clearInputErrors, updateSchedule, createSchedule } = schedulesSlice.actions; // 액션 생성함수
 export default schedulesSlice.reducer; // 리듀서

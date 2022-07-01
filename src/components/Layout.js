@@ -6,11 +6,12 @@ import SvgIcons from "./SvgIcons"
 import Sidebar from "./Sidebar"
 import Footer from "./Footer"
 import {useAuth} from "../hooks/useAuth";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import Pusher from "pusher-js";
 import Echo from "laravel-echo";
 import apiController from "../lib/ApiController";
 import {toast} from "react-toastify";
+import {createSchedule, deleteSchedule, removeSchedule, updateSchedule} from "../store/modules/schedules";
 
 const Layout = (pageProps) => {
   const [sidebarShrink, setSidebarShrink] = useState(false);
@@ -41,6 +42,7 @@ const Layout = (pageProps) => {
       })
   }
 
+  const dispatch = useDispatch();
   useEffect(() => {
       if (user.isAuth) {
           const echo = connectPusher();
@@ -50,6 +52,21 @@ const Layout = (pageProps) => {
                   const message = e.message;
                   toast.success(message.message)
               })
+
+          echo.private(`Schedule`)
+              .listen('.update', (e) => {
+                  if (e.user_id !== user.data.id)
+                    dispatch(updateSchedule({schedule:e.schedule}));
+              })
+              .listen('.delete', (e) => {
+                  if (e.user_id !== user.data.id)
+                      dispatch(removeSchedule({id:e.schedule.id}));
+              })
+              .listen('.create', (e) => {
+                  if (e.user_id !== user.data.id)
+                      dispatch(createSchedule({schedule:e.schedule}));
+              })
+
 
           return () => {
               echo.disconnect();
