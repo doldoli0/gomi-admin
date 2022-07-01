@@ -12,6 +12,7 @@ import Echo from "laravel-echo";
 import apiController from "../lib/ApiController";
 import {toast} from "react-toastify";
 import {createSchedule, deleteSchedule, removeSchedule, updateSchedule} from "../store/modules/schedules";
+import {createMessage} from "../store/modules/messages";
 
 const Layout = (pageProps) => {
   const [sidebarShrink, setSidebarShrink] = useState(false);
@@ -51,6 +52,7 @@ const Layout = (pageProps) => {
               .listen('.message', (e) => {
                   const message = e.message;
                   toast.success(message.message)
+                  dispatch(createMessage({'message':message}))
               })
 
           echo.private(`Schedule`)

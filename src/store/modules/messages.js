@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import ApiController from "../../lib/ApiController";
 import moment from "moment";
 
-const initialState = {isLoading:false, data:[]}// 초기 상태 정의
+const initialState = {isLoaded: false, isLoading:false, data:[]}// 초기 상태 정의
 
 
 export const requestCheckMessage = createAsyncThunk(
@@ -46,11 +46,18 @@ const messagesSlice = createSlice({
     initialState: initialState,
     reducers: {
         removeMessage: (state, action) => {
-            const index = state.data.findIndex(message => message.id === action.payload.id);
-            if (index >= 0) {
-                state.data.splice(index, 1);
+            if (state.isLoaded) {
+                const index = state.data.findIndex(message => message.id === action.payload.id);
+                if (index >= 0) {
+                    state.data.splice(index, 1);
+                }
             }
         },
+        createMessage: (state, {payload}) => {
+            if (state.isLoaded) {
+                state.data.push(payload.message);
+            }
+        }
     },
     extraReducers: builder => {
         builder.addCase(requestGetMessages.pending, (state) =>{
@@ -59,6 +66,7 @@ const messagesSlice = createSlice({
         builder.addCase(requestGetMessages.fulfilled, (state, { payload }) => {
             state.data = payload;
             state.isLoading = false;
+            state.isLoaded = true;
         });
         builder.addCase(requestGetMessages.rejected, (state, {payload}) => {
             state.isLoading = false;
@@ -66,5 +74,5 @@ const messagesSlice = createSlice({
     }
 });
 
-export const { removeMessage } = messagesSlice.actions; // 액션 생성함수
+export const { removeMessage, createMessage } = messagesSlice.actions; // 액션 생성함수
 export default messagesSlice.reducer; // 리듀서
